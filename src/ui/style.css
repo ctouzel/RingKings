@@ -1,0 +1,30 @@
+:root {
+  --bg: #12131a;
+  --panel: #1c1e29;
+  --panel-2: #252838;
+  --text: #e8e9f0;
+  --muted: #9a9db0;
+  --accent: #f5c518;   /* or des ceintures */
+  --red: #d64545;
+  --blue: #3f7fd6;
+  --good: #4cc38a;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; }
+h1, h2, .pixel { font-family: 'Press Start 2P', monospace; letter-spacing: .5px; }
+h1 { color: var(--accent); font-size: 20px; margin: 0; }
+header { padding: 20px 24px; border-bottom: 2px solid var(--panel-2); }
+main { padding: 24px; display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); max-width: 1100px; }
+.card { background: var(--panel); border: 2px solid var(--panel-2); border-radius: 8px; padding: 18px; }
+.card.red { border-top: 4px solid var(--red); }
+.card.blue { border-top: 4px solid var(--blue); }
+.card h2 { font-size: 13px; line-height: 1.6; margin: 0 0 4px; }
+.sub { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+.record { font-family: 'Press Start 2P', monospace; font-size: 12px; color: var(--accent); margin: 8px 0 14px; }
+.ovr { float: right; font-family: 'Press Start 2P', monospace; font-size: 18px; color: var(--good); }
+.attr { display: grid; grid-template-columns: 110px 1fr 28px; align-items: center; gap: 8px; font-size: 13px; margin: 4px 0; }
+.bar { height: 8px; background: var(--panel-2); border-radius: 2px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--accent); }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.tag { background: var(--panel-2); padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+@media (max-width: 480px) { main { padding: 16px; } }
