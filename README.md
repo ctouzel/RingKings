@@ -21,7 +21,7 @@ npm run build   # vérification des types + build de production
 ## Feuille de route
 
 1. ✅ Modèle de données
-2. Générateur de ligue (50 boxeurs)
+2. ✅ Générateur de ligue (75 boxeurs)
 3. Moteur de simulation de combat
 4. Classements et carrière
 5. Interface de gestion
