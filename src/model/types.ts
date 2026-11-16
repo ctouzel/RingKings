@@ -48,9 +48,10 @@ export type Stance = (typeof STANCES)[number];
 
 /** Codes pays ISO 3166-1 alpha-2 (pour drapeaux et générateur de noms). */
 export const NATIONALITIES = [
-  'CA', 'US', 'MX', 'CU', 'PR', 'BR', 'AR',
-  'GB', 'IE', 'FR', 'DE', 'IT', 'ES', 'UA', 'RU', 'KZ',
-  'NG', 'GH', 'ZA', 'JP', 'PH', 'KR', 'AU',
+  'CA', 'US', 'MX', 'GB',
+  'CU', 'PR', 'DO', 'CO', 'BR', 'AR',
+  'IE', 'FR', 'DE', 'IT', 'ES', 'PL', 'UA', 'RU', 'KZ', 'UZ',
+  'NG', 'GH', 'ZA', 'JP', 'PH', 'TH', 'KR', 'AU',
 ] as const;
 export type Nationality = (typeof NATIONALITIES)[number];
 
