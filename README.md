@@ -66,6 +66,13 @@ npm run build   # vérification des types + build de production
 - **Repos médical** : 30 jours + selon les dégâts reçus ; +45 à 75 jours après
   une défaite avant la limite.
 
+Équilibrage sur 10 saisons (niveau moyen ~68–70, âge moyen ~27–28, 60–70 % des
+4 grands marchés, ~20 nationalités) :
+
+```bash
+SAISONS=10 SEED=314 npx vitest run scripts/longrun.test.ts
+```
+
 Aperçu d'une ligue après 3 ans de galas automatiques :
 
 ```bash

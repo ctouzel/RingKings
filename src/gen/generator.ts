@@ -258,7 +258,7 @@ export function generateBoxer(
 
   const peakAge = rng.int(26, 31);
   const potential = age < peakAge
-    ? clamp(Math.round(rating + (peakAge - age) * rng.float(0.6, 2.4)), rating, 97)
+    ? clamp(Math.round(rating + (peakAge - age) * rng.float(0.4, 1.5)), rating, 93)
     : rating;
 
   const stats = generateRecord(rng, attributes, style, rating, age, debutAge);

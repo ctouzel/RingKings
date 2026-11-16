@@ -46,7 +46,7 @@ export function ageOneYear(b: Boxer, date: IsoDate, rng: Rng): { before: number;
   const age = ageOn(b.birthDate, date);
   const { potential, peakAge, wear } = b.development;
   let base: number;
-  if (age < peakAge) base = Math.max(0, potential - before) * rng.float(0.15, 0.45) + rng.gaussian(0.5, 1);
+  if (age < peakAge) base = Math.max(0, potential - before) * rng.float(0.12, 0.35) + rng.gaussian(0.3, 1);
   else if (age <= peakAge + 1) base = rng.gaussian(0, 1);
   else base = Math.max(-9, -((age - peakAge) * rng.float(0.4, 0.9) + wear * 0.03) + rng.gaussian(0, 1));
 
@@ -74,7 +74,7 @@ export function retirementChance(league: League, b: Boxer, date: IsoDate, yearFi
   if (age >= 40) return { p: 1, reason: 'âge' };
   // Chaque facteur ajoute au risque ; la raison affichée est le facteur dominant.
   const factors: [string, number][] = [['âge', age < 30 ? 0 : age <= 33 ? 0.04 : [0.12, 0.2, 0.3, 0.45, 0.65][Math.min(4, age - 34)]!]];
-  if (b.development.wear > 60 && age >= 27) factors.push(['usure physique', 0.25]);
+  if (b.development.wear > 65 && age >= 29) factors.push(['usure physique', 0.2]);
   if (overallRating(b) < 55 && age >= 28) factors.push(['déclin', 0.2]);
   const mine = yearFights.filter((f) => f.red === b.id || f.blue === b.id);
   const losses = mine.filter((f) => f.result.winner !== null && (f.result.winner === 'red' ? f.red : f.blue) !== b.id).length;

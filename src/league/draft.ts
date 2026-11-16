@@ -29,12 +29,12 @@ export function createDraft(league: League, year: number, rng: Rng): Draft {
     picks[wc] = Math.max(1, ROSTER_SIZE - activeCount(league, wc));
     pool[wc] = [];
     for (let i = 0; i < picks[wc] + EXTRA_PROSPECTS; i++) {
-      const age = rng.int(19, 23);
-      const b = generateBoxer(rng, league, { weightClass: wc, rating: rng.gaussian(60, 4), age }, reg);
+      const age = rng.int(21, 25);
+      const b = generateBoxer(rng, league, { weightClass: wc, rating: rng.gaussian(62, 4), age }, reg);
       b.seedPoints = 0;
       // Vrai potentiel (caché) et estimation du recruteur (parfois à côté de la plaque).
       const ovr = overallRating(b);
-      b.development.potential = Math.round(clamp(ovr + rng.gaussian(17, 7), ovr + 3, 96));
+      b.development.potential = Math.round(clamp(ovr + rng.gaussian(13, 6), ovr + 2, 92));
       b.development.peakAge = rng.int(26, 31);
       b.development.wear = 0;
       b.popularity = Math.round(clamp(rng.gaussian(18, 6), 3, 40));
