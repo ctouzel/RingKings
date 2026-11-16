@@ -10,7 +10,9 @@ import { esc } from './ui/dom';
 import { onEventsChange, onEventsClick, onEventsSubmit, openBuilderFor, renderEvents } from './ui/eventsView';
 import { renderFightLab, setLabDivision } from './ui/fightLab';
 import { renderLeague } from './ui/leagueView';
-import { createApp, loadLeague, newLeague, save, type Screen } from './ui/state';
+import { createApp, newLeague, save, type App, type Screen } from './ui/state';
+import { onSavesChange, onSavesClick, onSavesSubmit, openSaves, renderSaves } from './ui/savesView';
+import { activeSlot, loadSlot, migrateLegacy, setActiveSlot } from './ui/storage';
 import { renderStats } from './ui/statsView';
 import { onSeasonClick, renderSeason } from './ui/seasonView';
 import { openViewer, paintSprites } from './ui/viewer';
@@ -18,9 +20,8 @@ import { simulateFight } from './sim/engine';
 import { fighterFromBoxer } from './sim/fighter';
 import type { WeightClass } from './model/types';
 
-const app = createApp(loadLeague());
-save(app);
 const root = document.querySelector<HTMLDivElement>('#app')!;
+let app: App;
 
 const SCREENS: [Screen, string][] = [
   ['rankings', 'Classements'], ['boxers', 'Boxeurs'], ['events', 'Galas'], ['season', 'Saison'], ['stats', 'Statistiques'], ['lab', 'Labo'],
@@ -63,11 +64,12 @@ function render(): void {
       <nav class="main-nav">${nav}</nav>
       <div class="header-info">
         <span>${esc(app.league.name)} · saison ${app.league.seasonYear} · <b>${formatDate(app.league.currentDate)}</b></span>
-        <button id="new-league" class="btn ghost">Nouvelle ligue</button>
+        <button id="open-saves" class="btn ghost" title="Sauvegardes, export, nouvelle ligue">Partie</button>
       </div>
     </header>
     <main>${flash}${screenHtml()}</main>
-    ${modalHtml()}`;
+    ${modalHtml()}
+    ${renderSaves(app)}`;
   app.flash = null;
   paintSprites(app.league, root);
 
@@ -83,8 +85,15 @@ function update(): void {
   render();
 }
 
-root.addEventListener('click', (e) => {
+root.addEventListener('click', async (e) => {
   const t = e.target as HTMLElement;
+
+  // Fenêtre « Partie » (asynchrone : lecture/écriture des sauvegardes).
+  if (t.closest('#open-saves')) { await openSaves(app); return render(); }
+  if (app.saves) {
+    if (await onSavesClick(app, t)) render();
+    return;
+  }
 
   // Fenêtre de fiche boxeur.
   if (t.matches('[data-close-modal]')) { app.modalBoxer = null; return render(); }
@@ -104,12 +113,6 @@ root.addEventListener('click', (e) => {
   // Navigation.
   const nav = t.closest<HTMLElement>('[data-screen]');
   if (nav) { app.screen = nav.dataset.screen as Screen; app.events.fightId = null; return render(); }
-  if (t.id === 'new-league') {
-    if (!confirm('Générer une nouvelle ligue ? La ligue actuelle sera remplacée.')) return;
-    const fresh = createApp(newLeague());
-    Object.assign(app, fresh);
-    return update();
-  }
 
   // Un combat cliqué depuis n'importe quel écran (historique, records) : détail dans Galas.
   const fight = t.closest<HTMLElement>('[data-fight]');
@@ -153,6 +156,10 @@ root.addEventListener('click', (e) => {
 
 function onFieldChange(e: Event): void {
   const el = e.target as HTMLInputElement | HTMLSelectElement;
+  if (app.saves) {
+    if (e.type === 'change') void onSavesChange(app, el as HTMLInputElement).then((changed) => changed && render());
+    return;
+  }
   if (app.screen === 'boxers' && onBoxersInput(app, el)) return render();
   if (e.type !== 'change') return;
   if (app.screen === 'events' && onEventsChange(app, el)) return render();
@@ -172,13 +179,26 @@ root.addEventListener('change', onFieldChange);
 
 root.addEventListener('submit', (e) => {
   e.preventDefault();
+  if (app.saves) { if (onSavesSubmit(app, e.target as HTMLFormElement)) render(); return; }
   if (app.screen === 'events' && onEventsSubmit(app, e.target as HTMLFormElement)) update();
 });
 
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && app.saves) { app.saves = null; render(); return; }
   if (e.key === 'Escape' && app.modalBoxer) { app.modalBoxer = null; render(); }
 });
 
-// Rend la variable accessible pour déboguer dans la console du navigateur.
-(window as unknown as { ringkings: typeof app }).ringkings = app;
-render();
+/** Démarrage : ancienne sauvegarde migrée, puis chargement de l'emplacement actif. */
+async function start(): Promise<void> {
+  await migrateLegacy();
+  const slot = activeSlot();
+  let league = null;
+  try { league = await loadSlot(slot); } catch (e) { console.error('Sauvegarde illisible', e); }
+  app = createApp(league ?? newLeague(), slot);
+  setActiveSlot(slot);
+  if (!league) save(app);
+  // Rend l'état accessible pour déboguer dans la console du navigateur.
+  (window as unknown as { ringkings: App }).ringkings = app;
+  render();
+}
+void start();

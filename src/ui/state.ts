@@ -3,9 +3,9 @@
  * Chaque écran a son propre sous-état. Après chaque action, main.ts ré-affiche tout.
  */
 import { generateLeague } from '../gen/generator';
-import { deserializeLeague, serializeLeague } from '../model/league';
 import type { BoxerId, EventId, FightId, League, WeightClass } from '../model/types';
 import { defaultLab, type LabState } from './fightLab';
+import { activeSlot, saveSlot, type Slot, type SlotMeta } from './storage';
 
 export type Screen = 'rankings' | 'boxers' | 'events' | 'season' | 'stats' | 'lab';
 
@@ -29,34 +29,34 @@ export interface App {
   modalBoxer: BoxerId | null;
   /** Message temporaire (succès / erreur). */
   flash: { kind: 'ok' | 'err'; text: string } | null;
+  /** Emplacement de sauvegarde de la partie en cours. */
+  slot: Slot;
+  /** Fenêtre « Partie » (sauvegardes) : null = fermée. */
+  saves: { metas: (SlotMeta | null)[] } | null;
 }
 
-const SAVE_KEY = 'ringkings.save';
-
-export function newLeague(): League {
-  return generateLeague({ seed: Math.floor(Math.random() * 1_000_000) });
+export function newLeague(name?: string, seed?: number): League {
+  return generateLeague({ seed: seed ?? Math.floor(Math.random() * 1_000_000), name: name || undefined });
 }
 
-export function loadLeague(): League {
-  try {
-    const saved = localStorage.getItem(SAVE_KEY);
-    if (saved) return deserializeLeague(saved);
-  } catch {
-    // Sauvegarde absente, illisible ou d'une ancienne version : nouvelle ligue.
-  }
-  return newLeague();
-}
-
+/** Sauvegarde automatique dans l'emplacement actif (après chaque action). */
+let pending: Promise<void> = Promise.resolve();
 export function save(app: App): void {
-  try { localStorage.setItem(SAVE_KEY, serializeLeague(app.league)); } catch { /* stockage indisponible */ }
+  const league = app.league, slot = app.slot;
+  // Les écritures s'enchaînent pour ne jamais se croiser.
+  pending = pending.then(() => saveSlot(slot, league)).catch((e) => {
+    console.error('Sauvegarde impossible', e);
+  });
 }
 
 export function emptyBuilder(division: WeightClass = 'heavyweight'): Builder {
   return { division, a: null, b: null, rounds: 10, title: false };
 }
 
-export function createApp(league: League): App {
+export function createApp(league: League, slot: Slot = activeSlot()): App {
   return {
+    slot,
+    saves: null,
     league,
     screen: 'rankings',
     rankings: { division: 'heavyweight', selected: null },

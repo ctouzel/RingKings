@@ -320,3 +320,14 @@ ul.plain li { padding: 6px 0; border-bottom: 1px solid var(--line); }
   .prospect { grid-template-columns: 44px 1fr 20px; }
   .pr-nums { grid-column: 2; justify-content: flex-start; }
 }
+
+/* ---- Finitions : sauvegardes ---- */
+.modal-box.wide { max-width: 760px; }
+.slots { list-style: none; padding: 0; margin: 0 0 18px; }
+.slot { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 12px; border: 2px solid var(--line); border-radius: 8px; margin-bottom: 8px; }
+.slot.active { border-color: var(--accent); }
+.slot-num { font-size: 18px; color: var(--accent); text-align: center; }
+.slot-name { font-weight: 700; }
+.btn { font-size: 13px; }
+.file-btn { display: inline-flex; align-items: center; cursor: pointer; }
+@media (max-width: 600px) { .slot { grid-template-columns: 30px 1fr; } .slot .row-btns { grid-column: 1 / -1; } }

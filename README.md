@@ -46,6 +46,13 @@ npm run build   # vérification des types + build de production
   nombre d'échanges gardés par round en mode résumé).
 - Raccourcis du lecteur : espace = pause, ← / → = reculer / avancer de 5 s, Échap = fermer.
 
+## Sauvegardes
+
+Bouton **Partie** : 3 emplacements (IndexedDB, sauvegarde automatique après chaque
+action), export / import d'un fichier `.json`, nouvelle ligue avec nom et seed.
+Une ligue pèse environ 180 Ko par saison jouée. Les anciennes sauvegardes sont
+migrées automatiquement.
+
 ## Règles de la ligue
 
 - **Classement par points** : une victoire rapporte `(20 + valeur de l'adversaire)`
