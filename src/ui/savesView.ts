@@ -59,7 +59,7 @@ export function renderSaves(app: App): string {
 function switchTo(app: App, league: App['league'], slot: Slot): void {
   const screen = app.screen;
   Object.assign(app, createApp(league, slot));
-  app.screen = screen === 'lab' || screen === 'events' ? 'rankings' : screen;
+  app.screen = screen === 'lab' || screen === 'events' ? 'home' : screen;
   setActiveSlot(slot);
 }
 

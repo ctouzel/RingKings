@@ -8,7 +8,7 @@ import { defaultLab, type LabState } from './fightLab';
 import type { EditorState } from './editorView';
 import { activeSlot, saveSlot, type Slot, type SlotMeta } from './storage';
 
-export type Screen = 'rankings' | 'boxers' | 'events' | 'season' | 'stats' | 'lab';
+export type Screen = 'home' | 'rankings' | 'boxers' | 'events' | 'season' | 'stats' | 'lab';
 
 export interface Builder {
   division: WeightClass;
@@ -62,7 +62,7 @@ export function createApp(league: League, slot: Slot = activeSlot()): App {
     saves: null,
     editor: null,
     league,
-    screen: 'rankings',
+    screen: 'home',
     rankings: { division: 'heavyweight', selected: null },
     boxers: { search: '', division: '', style: '', nationality: '', availableOnly: false, retired: false, sort: 'rating', desc: true },
     season: { year: null, selected: [] },

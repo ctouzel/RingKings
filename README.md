@@ -32,7 +32,7 @@ npm run build   # vérification des types + build de production
 5. ✅ Interface de gestion
 6. ✅ Visualisation des combats 8-bit
 7. ✅ Cycle de saison (âge, progression, retraites, repêchage)
-8. Finitions (sauvegarde, sons, éditeur de sprites)
+8. ✅ Finitions (équilibrage 10 saisons, sauvegardes, éditeur d'apparence, sons, accueil)
 
 ## Sprites et animation
 
@@ -102,5 +102,5 @@ WRITE=1 npx vitest run scripts/attr-value.test.ts   # recalcule les poids de la 
 npx vitest run scripts/style-tuner.test.ts          # équilibre automatique des styles
 ```
 
-Cibles actuelles : ~60 % d'arrêts (51 % chez les légers, 69 % chez les lourds),
+Cibles actuelles : ~60 % d'arrêts (44 % chez les légers, 74 % chez les lourds, dont ~17 % par le coin ou le médecin),
 ~0,7 knockdown par combat, ~52 coups lancés par round, le favori gagne ~73 %.

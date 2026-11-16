@@ -97,7 +97,7 @@ const CLASS_POWER: Record<WeightClass, number> = {
 
 export const TUNING = {
   /** Multiplicateur de l'étourdissement par coup (↑ = plus de knockdowns/KO). */
-  stunScale: 0.72,
+  stunScale: 0.76,
   /** Bonus d'étourdissement d'un coup "propre" (sur la pointe du menton). */
   cleanStun: 2.0,
   /** Seuil de knockdown : base + menton × pente (↑ = moins de knockdowns). */
@@ -108,7 +108,7 @@ export const TUNING = {
   /** Volume de coups (↑ = plus de coups par round). */
   volume: 1.25,
   /** Dégâts à partir desquels le coin ou le médecin peut arrêter le combat. */
-  stopDamage: 85,
+  stopDamage: 95,
   /** Propension de l'arbitre à arrêter un boxeur sonné qui ne répond plus. */
   refereeStop: 0.25,
   /** Écart-type de la "forme du soir" (± % sur tous les attributs). */

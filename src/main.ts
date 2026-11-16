@@ -14,6 +14,7 @@ import { createApp, newLeague, save, type App, type Screen } from './ui/state';
 import { onSavesChange, onSavesClick, onSavesSubmit, openSaves, renderSaves } from './ui/savesView';
 import { activeSlot, loadSlot, migrateLegacy, setActiveSlot } from './ui/storage';
 import { renderStats } from './ui/statsView';
+import { onHomeClick, renderHome } from './ui/homeView';
 import { onEditorClick, onEditorInput, openEditor, renderEditor, syncEditorPreview } from './ui/editorView';
 import { onSeasonClick, renderSeason } from './ui/seasonView';
 import { openViewer, paintSprites } from './ui/viewer';
@@ -25,11 +26,12 @@ const root = document.querySelector<HTMLDivElement>('#app')!;
 let app: App;
 
 const SCREENS: [Screen, string][] = [
-  ['rankings', 'Classements'], ['boxers', 'Boxeurs'], ['events', 'Galas'], ['season', 'Saison'], ['stats', 'Statistiques'], ['lab', 'Labo'],
+  ['home', 'Accueil'], ['rankings', 'Classements'], ['boxers', 'Boxeurs'], ['events', 'Galas'], ['season', 'Saison'], ['stats', 'Statistiques'], ['lab', 'Labo'],
 ];
 
 function screenHtml(): string {
   switch (app.screen) {
+    case 'home': return renderHome(app);
     case 'rankings': return renderLeague(app.league, app.rankings);
     case 'boxers': return renderBoxers(app);
     case 'events': return renderEvents(app);
@@ -135,6 +137,9 @@ root.addEventListener('click', async (e) => {
   }
 
   switch (app.screen) {
+    case 'home':
+      if (onHomeClick(app, t)) return render();
+      break;
     case 'rankings': {
       const tab = t.closest<HTMLElement>('[data-division]');
       if (tab) { app.rankings = { division: tab.dataset.division as WeightClass, selected: null }; return render(); }
