@@ -12,6 +12,7 @@ import { renderFightLab, setLabDivision } from './ui/fightLab';
 import { renderLeague } from './ui/leagueView';
 import { createApp, loadLeague, newLeague, save, type Screen } from './ui/state';
 import { renderStats } from './ui/statsView';
+import { onSeasonClick, renderSeason } from './ui/seasonView';
 import { openViewer, paintSprites } from './ui/viewer';
 import { simulateFight } from './sim/engine';
 import { fighterFromBoxer } from './sim/fighter';
@@ -22,7 +23,7 @@ save(app);
 const root = document.querySelector<HTMLDivElement>('#app')!;
 
 const SCREENS: [Screen, string][] = [
-  ['rankings', 'Classements'], ['boxers', 'Boxeurs'], ['events', 'Galas'], ['stats', 'Statistiques'], ['lab', 'Labo'],
+  ['rankings', 'Classements'], ['boxers', 'Boxeurs'], ['events', 'Galas'], ['season', 'Saison'], ['stats', 'Statistiques'], ['lab', 'Labo'],
 ];
 
 function screenHtml(): string {
@@ -31,6 +32,7 @@ function screenHtml(): string {
     case 'boxers': return renderBoxers(app);
     case 'events': return renderEvents(app);
     case 'stats': return renderStats(app);
+    case 'season': return renderSeason(app);
     case 'lab': return renderFightLab(app.league, app.lab);
   }
 }
@@ -51,15 +53,16 @@ function render(): void {
   const active = document.activeElement as HTMLInputElement | null;
   const focusId = active?.id, caret = active?.selectionStart ?? null;
 
+  const badge = (id: Screen) => (id === 'season' && app.league.draft ? ' <span class="badge" title="Repêchage en attente">!</span>' : '');
   const nav = SCREENS.map(([id, label]) =>
-    `<button class="nav ${app.screen === id ? 'active' : ''}" data-screen="${id}">${label}</button>`).join('');
+    `<button class="nav ${app.screen === id ? 'active' : ''}" data-screen="${id}">${label}${badge(id)}</button>`).join('');
   const flash = app.flash ? `<div class="flash ${app.flash.kind}" data-flash>${esc(app.flash.text)}</div>` : '';
   root.innerHTML = `
     <header>
       <h1>RINGKINGS</h1>
       <nav class="main-nav">${nav}</nav>
       <div class="header-info">
-        <span>${esc(app.league.name)} · <b>${formatDate(app.league.currentDate)}</b></span>
+        <span>${esc(app.league.name)} · saison ${app.league.seasonYear} · <b>${formatDate(app.league.currentDate)}</b></span>
         <button id="new-league" class="btn ghost">Nouvelle ligue</button>
       </div>
     </header>
@@ -131,6 +134,9 @@ root.addEventListener('click', (e) => {
       break;
     case 'events':
       if (onEventsClick(app, t)) return update();
+      break;
+    case 'season':
+      if (onSeasonClick(app, t)) return update();
       break;
     case 'lab':
       if (t.id === 'lab-run') { app.lab.seed = Math.floor(Math.random() * 2 ** 32); return render(); }

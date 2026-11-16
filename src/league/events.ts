@@ -162,7 +162,12 @@ export function runEvent(league: League, eventId: string): Fight[] {
   if (!ev || ev.status !== 'planned') throw new Error('Gala introuvable ou déjà disputé.');
   if (plannedEvents(league)[0]?.id !== ev.id) throw new Error('Les galas se disputent dans l’ordre chronologique.');
   if (ev.fightIds.length === 0) throw new Error('La carte est vide.');
+  if (league.draft) throw new Error(`Le repêchage ${league.draft.year} doit être terminé avant de disputer un gala.`);
   advanceTo(league, ev.date);
+  // Le passage à une nouvelle saison ouvre un repêchage : on s'arrête là.
+  const opened = league.draft as League['draft']; // (TypeScript ne sait pas qu'advanceTo peut le créer)
+  if (opened) throw new Error(`Nouvelle saison ! Consulte le bilan et fais ton repêchage ${opened.year}, puis dispute ${ev.name}.`);
+  if (ev.fightIds.length === 0) throw new Error('Des retraites ont vidé la carte de ce gala : recompose-la.');
 
   const fights = ev.fightIds.map((id) => league.fights[id]!);
   // Un combat de titre peut devenir caduc (titre déclaré vacant entre-temps) : il reste

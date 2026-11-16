@@ -38,7 +38,7 @@ function filtered(app: App): Boxer[] {
   const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
   const col = COLUMNS.find((c) => c.key === f.sort) ?? COLUMNS[COLUMNS.length - 1]!;
   return Object.values(l.boxers)
-    .filter((b) => b.status !== 'retired')
+    .filter((b) => (f.retired ? b.status === 'retired' : b.status !== 'retired'))
     .filter((b) => !q || norm(`${b.firstName} ${b.lastName} ${b.nickname ?? ''} ${b.hometown}`).includes(q))
     .filter((b) => !f.division || b.weightClass === f.division)
     .filter((b) => !f.style || b.style === f.style)
@@ -69,6 +69,7 @@ export function renderBoxers(app: App): string {
       <label>Style <select data-filter="style">${opt('', 'Tous', f.style)}${FIGHTING_STYLES.map((s) => opt(s, STYLE_INFO[s].label, f.style)).join('')}</select></label>
       <label>Pays <select data-filter="nationality">${opt('', 'Tous', f.nationality)}${nats.map((n) => opt(n, `${NATIONALITY_INFO[n].flag} ${NATIONALITY_INFO[n].country}`, f.nationality)).join('')}</select></label>
       <label class="check"><input type="checkbox" data-filter="availableOnly" ${f.availableOnly ? 'checked' : ''}> Disponibles</label>
+      <label class="check"><input type="checkbox" data-filter="retired" ${f.retired ? 'checked' : ''}> Retraités</label>
     </section>
     <p class="muted small">${list.length} boxeur${list.length > 1 ? 's' : ''} · clique sur un en-tête pour trier, sur une ligne pour ouvrir la fiche.</p>
     <section class="panel scroll-x">
@@ -88,7 +89,7 @@ export function onBoxersClick(app: App, target: HTMLElement): boolean {
 export function onBoxersInput(app: App, el: HTMLInputElement | HTMLSelectElement): boolean {
   const key = el.dataset.filter as keyof App['boxers'] | undefined;
   if (!key) return false;
-  if (key === 'availableOnly') app.boxers.availableOnly = (el as HTMLInputElement).checked;
+  if (key === 'availableOnly' || key === 'retired') app.boxers[key] = (el as HTMLInputElement).checked;
   else (app.boxers as unknown as Record<string, string>)[key] = el.value;
   return true;
 }

@@ -31,7 +31,7 @@ npm run build   # vérification des types + build de production
 4. ✅ Classements et carrière
 5. ✅ Interface de gestion
 6. ✅ Visualisation des combats 8-bit
-7. Cycle de saison (âge, progression, retraites)
+7. ✅ Cycle de saison (âge, progression, retraites, repêchage)
 8. Finitions (sauvegarde, sons, éditeur de sprites)
 
 ## Sprites et animation
@@ -56,6 +56,13 @@ npm run build   # vérification des types + build de production
 - **Défense obligatoire** : le champion doit affronter l'aspirant n°1 dans
   l'année, sinon le titre devient vacant. Un titre vacant se dispute entre
   deux boxeurs du top 5.
+- **Fin de saison** (passage du 31 décembre) : récompenses de l'année, progression
+  des jeunes vers leur potentiel, déclin après l'âge de pic (le physique d'abord,
+  l'expérience continue de monter), retraites (âge, usure, déclin, série de
+  défaites, inactivité), puis **repêchage**.
+- **Repêchage** : un choix par place libérée (au moins un par catégorie) parmi
+  « choix + 3 » espoirs. Le potentiel affiché est une estimation du recruteur ;
+  le vrai potentiel est caché. Les galas de la nouvelle année attendent le repêchage.
 - **Repos médical** : 30 jours + selon les dégâts reçus ; +45 à 75 jours après
   une défaite avant la limite.
 

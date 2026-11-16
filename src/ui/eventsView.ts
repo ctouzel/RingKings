@@ -333,6 +333,8 @@ export function onEventsClick(app: App, target: HTMLElement): boolean {
     }
   } catch (e) {
     app.flash = { kind: 'err', text: (e as Error).message };
+    // Une nouvelle saison vient de s'ouvrir : direction le bilan et le repêchage.
+    if (league.draft) { app.screen = 'season'; app.season.year = null; window.scrollTo(0, 0); }
     return true;
   }
   return false;

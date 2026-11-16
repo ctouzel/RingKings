@@ -7,7 +7,7 @@ import { deserializeLeague, serializeLeague } from '../model/league';
 import type { BoxerId, EventId, FightId, League, WeightClass } from '../model/types';
 import { defaultLab, type LabState } from './fightLab';
 
-export type Screen = 'rankings' | 'boxers' | 'events' | 'stats' | 'lab';
+export type Screen = 'rankings' | 'boxers' | 'events' | 'season' | 'stats' | 'lab';
 
 export interface Builder {
   division: WeightClass;
@@ -21,7 +21,8 @@ export interface App {
   league: League;
   screen: Screen;
   rankings: { division: WeightClass; selected: BoxerId | null };
-  boxers: { search: string; division: WeightClass | ''; style: string; nationality: string; availableOnly: boolean; sort: string; desc: boolean };
+  boxers: { search: string; division: WeightClass | ''; style: string; nationality: string; availableOnly: boolean; retired: boolean; sort: string; desc: boolean };
+  season: { year: number | null; selected: BoxerId[] };
   events: { fightId: FightId | null; openEvent: EventId | null; builder: Builder; newForm: boolean };
   lab: LabState;
   /** Fiche boxeur ouverte en fenêtre (écrans Boxeurs et Statistiques). */
@@ -59,7 +60,8 @@ export function createApp(league: League): App {
     league,
     screen: 'rankings',
     rankings: { division: 'heavyweight', selected: null },
-    boxers: { search: '', division: '', style: '', nationality: '', availableOnly: false, sort: 'rating', desc: true },
+    boxers: { search: '', division: '', style: '', nationality: '', availableOnly: false, retired: false, sort: 'rating', desc: true },
+    season: { year: null, selected: [] },
     events: { fightId: null, openEvent: null, builder: emptyBuilder(), newForm: false },
     lab: defaultLab(league),
     modalBoxer: null,

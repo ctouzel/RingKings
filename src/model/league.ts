@@ -1,7 +1,7 @@
 import type { BoxerId, Division, EventId, FightId, IsoDate, League, WeightClass } from './types';
 import { WEIGHT_CLASSES } from './types';
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 /** Crée une ligue vide (le générateur de l'étape 2 la remplira). */
 export function createEmptyLeague(name: string, startDate: IsoDate, seed: number): League {
@@ -22,6 +22,9 @@ export function createEmptyLeague(name: string, startDate: IsoDate, seed: number
     divisions,
     money: 250_000,
     news: [],
+    seasonYear: Number(startDate.slice(0, 4)),
+    seasons: [],
+    draft: null,
   };
 }
 
@@ -39,8 +42,14 @@ export function serializeLeague(l: League): string {
 
 export function deserializeLeague(json: string): League {
   const data = JSON.parse(json) as League;
+  // Migrations : chaque étape fait passer une sauvegarde à la version suivante.
+  if (data.saveVersion === 2) {
+    data.seasonYear = Number(data.currentDate.slice(0, 4));
+    data.seasons = [];
+    data.draft = null;
+    data.saveVersion = 3;
+  }
   if (data.saveVersion !== SAVE_VERSION) {
-    // Les migrations de format viendront ici quand le modèle évoluera.
     throw new Error(`Version de sauvegarde non supportée : ${data.saveVersion}`);
   }
   return data;

@@ -5,6 +5,16 @@ import { divisionOrder, generateLeague } from '../src/gen/generator';
 import { advanceTo } from '../src/league/calendar';
 import { bookFight, canBook, createEvent, replayFight, runEvent } from '../src/league/events';
 import { autoCard } from '../src/league/matchmaking';
+import { autoDraft } from '../src/league/draft';
+
+/** Dispute un gala ; si une nouvelle saison ouvre un repêchage, on le fait automatiquement. */
+function runWithDrafts(l: League, id: string): void {
+  try { runEvent(l, id); } catch (e) {
+    if (!l.draft) throw e;
+    autoDraft(l);
+    if (l.events[id]!.fightIds.length) runEvent(l, id);
+  }
+}
 import { decay, rankOf, rankingPoints } from '../src/league/ranking';
 import type { League } from '../src/model/types';
 import { WEIGHT_CLASSES } from '../src/model/types';
@@ -87,13 +97,15 @@ describe('défense obligatoire', () => {
     const l = fresh();
     const div = l.divisions.middleweight;
     advanceTo(l, addDays(div.mandatoryDue!, 1));
+    if (l.draft) autoDraft(l); // l'échéance peut tomber après le 31 décembre
     const ev = createEvent(l, { name: 'Vacant', date: addDays(l.currentDate, 30), venue: 'V', city: 'C' });
     const [a, b] = div.rankings;
     // On cherche un seed sans match nul pour vérifier le couronnement.
     const f = bookFight(l, ev.id, a!, b!, { title: true, seed: 7 });
-    runEvent(l, ev.id);
-    if (f.result!.winner) {
-      expect(div.championId).toBe(f.result!.winner === 'red' ? f.red : f.blue);
+    runWithDrafts(l, ev.id);
+    if (!f.result) return; // un des deux a pris sa retraite au passage du 31 décembre
+    if (f.result.winner) {
+      expect(div.championId).toBe(f.result.winner === 'red' ? f.red : f.blue);
       expect(div.mandatoryDue).toBe(addDays(f.date, 365));
     } else {
       expect(div.championId).toBeNull();
@@ -124,12 +136,14 @@ describe('simulation de 3 ans de galas', () => {
   let events = 0;
   for (let i = 0; i < 39; i++) {
     const ev = autoCard(l, rng, addDays(l.currentDate, 28));
-    runEvent(l, ev.id);
+    runWithDrafts(l, ev.id);
     events++;
   }
 
   it('dispute les galas et fait avancer le temps', () => {
     expect(events).toBe(39);
+    // 39 galas tous les 28 jours : on termine en décembre 2028, saison 2028 pas encore close.
+    expect(l.seasons.map((s) => s.year)).toEqual([2026, 2027]);
     expect(l.currentDate > '2028-12-01').toBe(true);
     expect(Object.values(l.fights).filter((f) => f.result).length).toBeGreaterThan(120);
   });
@@ -150,7 +164,7 @@ describe('simulation de 3 ans de galas', () => {
   it('garde des divisions cohérentes', () => {
     for (const wc of WEIGHT_CLASSES) {
       const d = l.divisions[wc];
-      const members = Object.values(l.boxers).filter((b) => b.weightClass === wc).length;
+      const members = Object.values(l.boxers).filter((b) => b.weightClass === wc && b.status !== 'retired').length;
       expect(d.rankings.length + (d.championId ? 1 : 0)).toBe(members);
       if (d.championId) {
         expect(rankOf(l, d.championId)).toBe(0);

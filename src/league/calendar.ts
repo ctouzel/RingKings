@@ -8,6 +8,7 @@ import { WEIGHT_CLASSES } from '../model/types';
 import { WEIGHT_CLASS_INFO } from '../model/labels';
 import { addNews } from './career';
 import { recomputeRankings } from './ranking';
+import { endSeason } from './season';
 
 /** Le champion a-t-il une défense obligatoire programmée avant l'échéance ? */
 export function mandatoryBooked(league: League, wc: (typeof WEIGHT_CLASSES)[number]): boolean {
@@ -24,8 +25,21 @@ export function mandatoryBooked(league: League, wc: (typeof WEIGHT_CLASSES)[numb
 /** Avance la date de la ligue et applique les règles liées au temps. */
 export function advanceTo(league: League, date: IsoDate): void {
   if (date < league.currentDate) return;
+  // Chaque 31 décembre franchi clôt une saison (bilan, vieillissement, retraites, repêchage).
+  while (Number(date.slice(0, 4)) > league.seasonYear) {
+    const year = league.seasonYear;
+    league.currentDate = `${year}-12-31`;
+    applyDeadlines(league, league.currentDate);
+    endSeason(league, year);
+    league.seasonYear = year + 1;
+  }
   league.currentDate = date;
+  applyDeadlines(league, date);
+  recomputeRankings(league);
+}
 
+/** Défenses obligatoires non honorées et retours de blessure jusqu'à une date. */
+function applyDeadlines(league: League, date: IsoDate): void {
   for (const wc of WEIGHT_CLASSES) {
     const div = league.divisions[wc];
     if (div.championId && div.mandatoryDue && div.mandatoryDue < date) {
@@ -44,5 +58,4 @@ export function advanceTo(league: League, date: IsoDate): void {
   for (const b of Object.values(league.boxers)) {
     if (b.status === 'injured' && b.unavailableUntil && b.unavailableUntil <= date) b.status = 'active';
   }
-  recomputeRankings(league);
 }

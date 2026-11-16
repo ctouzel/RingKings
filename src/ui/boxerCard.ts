@@ -46,8 +46,11 @@ export function boxerCard(league: League, b: Boxer, actions = ''): string {
     <div class="attr"><span>${ATTRIBUTE_LABEL[k]}</span>
       <div class="bar"><span class="${barClass(b.attributes[k])}" style="width:${b.attributes[k]}%"></span></div>
       <span class="num">${b.attributes[k]}</span></div>`).join('');
-  const unavailable = !isAvailable(b, league.currentDate)
-    ? `<div class="alert">Indisponible jusqu’au ${formatDate(b.unavailableUntil!)} (repos médical)</div>` : '';
+  const unavailable = b.status === 'retired'
+    ? `<div class="alert retired">Retraité le ${formatDate(b.retiredDate!)} à ${ageOn(b.birthDate, b.retiredDate!)} ans</div>`
+    : !isAvailable(b, league.currentDate)
+      ? `<div class="alert">Indisponible jusqu’au ${formatDate(b.unavailableUntil!)} (repos médical)</div>` : '';
+  if (b.status === 'retired') actions = actions.replace(/<button class="btn" data-schedule="[^"]*">[^<]*<\/button>/, '');
 
   return `
     <article class="card">
@@ -81,6 +84,6 @@ export function boxerCard(league: League, b: Boxer, actions = ''): string {
       ${attrs}
       <h3>Carrière dans la ligue</h3>
       ${history(league, b)}
-      <div class="foot">Pro depuis le ${b.debutDate ? formatDate(b.debutDate) : '—'} · ${s.roundsFought} rounds disputés · usure ${b.development.wear}/100</div>
+      <div class="foot">Pro depuis le ${b.debutDate ? formatDate(b.debutDate) : '—'}${b.draftYear ? ` · repêché en ${b.draftYear}` : ''} · ${s.roundsFought} rounds disputés · usure ${b.development.wear}/100</div>
     </article>`;
 }

@@ -144,6 +144,8 @@ export interface Boxer {
   unavailableUntil?: IsoDate;
   debutDate?: IsoDate;
   retiredDate?: IsoDate;
+  /** Année du repêchage, pour les boxeurs arrivés en cours de partie. */
+  draftYear?: number;
 
   stats: CareerStats;
   /** Historique des combats dans la ligue, du plus ancien au plus récent. */
@@ -320,4 +322,49 @@ export interface League {
   money: number;
   /** Actualités, de la plus ancienne à la plus récente. */
   news: NewsItem[];
+  /** Année de la saison en cours (le bilan se fait au passage du 31 décembre). */
+  seasonYear: number;
+  /** Bilans des saisons terminées. */
+  seasons: SeasonReview[];
+  /** Repêchage en attente des choix du promoteur. */
+  draft: Draft | null;
+}
+
+// ---------------------------------------------------------------------------
+// Saisons et repêchage
+// ---------------------------------------------------------------------------
+
+export interface Award {
+  boxerId?: BoxerId;
+  fightId?: FightId;
+  text: string;
+}
+
+export interface SeasonReview {
+  year: number;
+  awards: {
+    boxer?: Award; // boxeur de l'année
+    ko?: Award; // KO de l'année
+    fight?: Award; // combat de l'année
+    upset?: Award; // surprise de l'année
+  };
+  /** Évolution de la note globale de chaque boxeur pendant l'intersaison. */
+  progress: { boxerId: BoxerId; before: number; after: number }[];
+  retirements: { boxerId: BoxerId; age: number; record: string; reason: string }[];
+  champions: Record<WeightClass, BoxerId | null>;
+  drafted: BoxerId[];
+}
+
+export interface DraftProspect {
+  boxer: Boxer;
+  /** Estimation du recruteur : le vrai potentiel est quelque part dans cette fourchette… en principe. */
+  scoutLow: number;
+  scoutHigh: number;
+}
+
+export interface Draft {
+  year: number;
+  /** Nombre de choix par catégorie. */
+  picks: Record<WeightClass, number>;
+  pool: Record<WeightClass, DraftProspect[]>;
 }

@@ -103,7 +103,9 @@ export function watchFight(league: League, fight: Fight, onClose?: () => void): 
 /** Dessine les aperçus de sprites (<canvas data-sprite="id">) après un rendu. */
 export function paintSprites(league: League, root: ParentNode): void {
   for (const cv of root.querySelectorAll<HTMLCanvasElement>('canvas[data-sprite]')) {
-    const b = league.boxers[cv.dataset.sprite!];
+    const id = cv.dataset.sprite!;
+    const b = league.boxers[id]
+      ?? (league.draft ? Object.values(league.draft.pool).flat().find((p) => p.boxer.id === id)?.boxer : undefined);
     if (!b) continue;
     const g = cv.getContext('2d')!;
     g.clearRect(0, 0, cv.width, cv.height);
