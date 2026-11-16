@@ -146,8 +146,21 @@ export interface Boxer {
   retiredDate?: IsoDate;
 
   stats: CareerStats;
-  /** Historique des combats, du plus ancien au plus récent. */
+  /** Historique des combats dans la ligue, du plus ancien au plus récent. */
   fightIds: FightId[];
+  /**
+   * Points de classement hérités d'avant la ligue (palmarès généré).
+   * Comme les points de combat, ils s'effacent progressivement en 2 ans.
+   */
+  seedPoints: number;
+}
+
+/** Instantané des caractéristiques d'un boxeur le soir du combat. */
+export interface FighterSnapshot {
+  attributes: Attributes;
+  style: FightingStyle;
+  stance: Stance;
+  reachCm: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -195,6 +208,10 @@ export interface FightResult {
   rounds: Record<Corner, RoundStats>[];
   /** Dégâts accumulés en fin de combat (0–100+) : servira aux blessures. */
   damage: Record<Corner, number>;
+  /** Points de classement gagnés (ou perdus) par chaque boxeur. */
+  rankingPoints?: Record<Corner, number>;
+  /** Le titre a changé de mains / a été attribué. */
+  titleChange?: boolean;
   /** Résumé lisible, ex. "KO au 7e round (2:13)". */
   summary: string;
 }
@@ -222,6 +239,8 @@ export interface Fight {
   result?: FightResult;
   /** Seed RNG : permet de rejouer exactement le même combat en animation. */
   seed: number;
+  /** Caractéristiques au moment du combat (pour le rejouer à l'identique plus tard). */
+  snapshot?: Record<Corner, FighterSnapshot>;
 }
 
 // ---------------------------------------------------------------------------
@@ -254,6 +273,11 @@ export interface Division {
   rankings: BoxerId[];
   /** Historique des champions de la division. */
   titleHistory: TitleReign[];
+  /**
+   * Date limite de la défense obligatoire : le champion doit affronter
+   * l'aspirant n°1 avant cette date, sinon le titre est déclaré vacant.
+   */
+  mandatoryDue: IsoDate | null;
 }
 
 export interface TitleReign {
@@ -261,6 +285,18 @@ export interface TitleReign {
   wonOn: IsoDate;
   lostOn?: IsoDate;
   defenses: number;
+  /** Comment le règne s'est terminé. */
+  endedBy?: 'defeat' | 'vacated' | 'retired';
+}
+
+export type NewsKind = 'title' | 'upset' | 'ko' | 'vacated' | 'injury' | 'info';
+
+/** Fil d'actualité de la ligue. */
+export interface NewsItem {
+  date: IsoDate;
+  kind: NewsKind;
+  text: string;
+  boxerIds: BoxerId[];
 }
 
 export interface League {
@@ -268,6 +304,8 @@ export interface League {
   saveVersion: number;
   name: string;
   currentDate: IsoDate;
+  /** Date de création de la ligue (référence des points hérités). */
+  startDate: IsoDate;
   /** Seed principal de la partie. */
   seed: number;
   /** Compteurs pour générer des identifiants uniques. */
@@ -280,4 +318,6 @@ export interface League {
 
   /** Finances du promoteur (le joueur). */
   money: number;
+  /** Actualités, de la plus ancienne à la plus récente. */
+  news: NewsItem[];
 }

@@ -1,18 +1,19 @@
 import type { BoxerId, Division, EventId, FightId, IsoDate, League, WeightClass } from './types';
 import { WEIGHT_CLASSES } from './types';
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 /** Crée une ligue vide (le générateur de l'étape 2 la remplira). */
 export function createEmptyLeague(name: string, startDate: IsoDate, seed: number): League {
   const divisions = {} as Record<WeightClass, Division>;
   for (const wc of WEIGHT_CLASSES) {
-    divisions[wc] = { weightClass: wc, championId: null, rankings: [], titleHistory: [] };
+    divisions[wc] = { weightClass: wc, championId: null, rankings: [], titleHistory: [], mandatoryDue: null };
   }
   return {
     saveVersion: SAVE_VERSION,
     name,
     currentDate: startDate,
+    startDate,
     seed,
     nextIds: { boxer: 1, fight: 1, event: 1 },
     boxers: {},
@@ -20,6 +21,7 @@ export function createEmptyLeague(name: string, startDate: IsoDate, seed: number
     events: {},
     divisions,
     money: 250_000,
+    news: [],
   };
 }
 

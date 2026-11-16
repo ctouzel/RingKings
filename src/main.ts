@@ -6,6 +6,10 @@ import type { BoxerId, League, WeightClass } from './model/types';
 import { esc } from './ui/dom';
 import { defaultLab, renderFightLab, setLabDivision, type LabState } from './ui/fightLab';
 import { renderLeague, type ViewState } from './ui/leagueView';
+import { renderEvents, type EventsState } from './ui/eventsView';
+import { Rng } from './core/rng';
+import { runEvent } from './league/events';
+import { autoCard } from './league/matchmaking';
 
 const SAVE_KEY = 'ringkings.save';
 
@@ -27,13 +31,14 @@ function save(league: League): void {
   try { localStorage.setItem(SAVE_KEY, serializeLeague(league)); } catch { /* stockage indisponible */ }
 }
 
-type Screen = 'rankings' | 'lab';
+type Screen = 'rankings' | 'events' | 'lab';
 
 let league = loadLeague();
 save(league);
 let screen: Screen = 'rankings';
 const view: ViewState = { division: 'heavyweight', selected: null };
 let lab: LabState = defaultLab(league);
+const evState: EventsState = { fightId: null };
 const app = document.querySelector<HTMLDivElement>('#app')!;
 
 function render(): void {
@@ -42,13 +47,13 @@ function render(): void {
   app.innerHTML = `
     <header>
       <h1>RINGKINGS</h1>
-      <nav class="main-nav">${nav('rankings', 'Classements')}${nav('lab', 'Labo de combat')}</nav>
+      <nav class="main-nav">${nav('rankings', 'Classements')}${nav('events', 'Galas')}${nav('lab', 'Labo de combat')}</nav>
       <div class="header-info">
         <span>${esc(league.name)} · ${formatDate(league.currentDate)}</span>
         <button id="new-league" class="btn ghost">Nouvelle ligue</button>
       </div>
     </header>
-    <main>${screen === 'rankings' ? renderLeague(league, view) : renderFightLab(league, lab)}</main>`;
+    <main>${screen === 'rankings' ? renderLeague(league, view) : screen === 'events' ? renderEvents(league, evState) : renderFightLab(league, lab)}</main>`;
 }
 
 app.addEventListener('click', (e) => {
@@ -56,6 +61,24 @@ app.addEventListener('click', (e) => {
   const nav = target.closest<HTMLElement>('[data-screen]');
   if (nav) {
     screen = nav.dataset.screen as Screen;
+    evState.fightId = null;
+    return render();
+  }
+  const fightEl = target.closest<HTMLElement>('[data-fight]');
+  if (fightEl) {
+    screen = 'events';
+    evState.fightId = fightEl.dataset.fight!;
+    window.scrollTo(0, 0);
+    return render();
+  }
+  if (target.closest('[data-back]')) {
+    evState.fightId = null;
+    return render();
+  }
+  if (target.id === 'quick-gala') {
+    const ev = autoCard(league, new Rng(Math.floor(Math.random() * 2 ** 32)));
+    runEvent(league, ev.id);
+    save(league);
     return render();
   }
   const tab = target.closest<HTMLElement>('[data-division]');
@@ -77,6 +100,7 @@ app.addEventListener('click', (e) => {
     league = newLeague();
     save(league);
     view.selected = null;
+    evState.fightId = null;
     lab = defaultLab(league);
     render();
   }

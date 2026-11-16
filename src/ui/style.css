@@ -122,3 +122,53 @@ h3:not(:first-child) { margin-top: 20px; }
   .fh, .fh.blue { border: 0; padding: 0; text-align: center; }
   .main-nav { margin-left: 0; }
 }
+
+/* ---- Étape 4 : classement, carrière, galas ---- */
+.small { font-size: 12px; }
+.division-panel { margin-bottom: 16px; }
+.belt-title { color: var(--accent); font-size: 11px; margin-bottom: 8px; }
+.champ-name { font-weight: 700; font-size: 17px; margin-bottom: 2px; }
+.mandatory { margin-top: 10px; font-size: 13px; padding: 8px 10px; border-radius: 6px; background: var(--panel-2); }
+.mandatory.warn { background: #3a2216; color: #f3a37a; }
+.mandatory.ok { background: #16301f; color: #8fd9ad; }
+details { margin-top: 10px; font-size: 13px; }
+summary { cursor: pointer; color: var(--muted); }
+.reigns { margin: 6px 0 0; padding-left: 18px; }
+.reigns li { margin: 3px 0; }
+.rankings tr.unranked td { opacity: .55; }
+.inj { color: var(--low); font-size: 12px; }
+.belt.sm { font-size: 10px; padding: 2px 5px; font-weight: 700; margin-left: 4px; }
+.belt.new { background: var(--good); }
+.tag.sm { font-size: 10px; padding: 2px 6px; font-weight: 700; }
+.alert { background: #3a2216; color: #f3a37a; padding: 8px 10px; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
+.card h3 { margin-top: 18px; }
+table.history { width: 100%; border-collapse: collapse; font-size: 13px; }
+.history td { padding: 6px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.history tr { cursor: pointer; }
+.history tr:hover { background: var(--panel-2); }
+.res { display: inline-block; width: 20px; text-align: center; border-radius: 3px; font-weight: 700; font-size: 11px; padding: 2px 0; }
+.res-V { background: var(--good); color: #111; }
+.res-D { background: var(--low); color: #111; }
+.res-N { background: var(--muted); color: #111; }
+.num.pos { color: var(--good); }
+.num.neg { color: var(--low); }
+.events-bar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.event { margin-bottom: 16px; }
+.ev-name { font-weight: 700; font-size: 16px; }
+.fights { list-style: none; margin: 12px 0 0; padding: 0; }
+.fight-row { padding: 10px 8px; border-top: 1px solid var(--line); cursor: pointer; border-radius: 4px; }
+.fight-row:hover { background: var(--panel-2); }
+.fight-row.main .fr-body { font-size: 15px; }
+.fr-top { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 4px; }
+.fr-body { font-weight: 600; }
+.fr-body .winner { color: var(--text); }
+.fr-body .loser { color: var(--muted); font-weight: 400; }
+.vs { color: var(--muted); font-weight: 400; margin: 0 6px; font-size: 12px; }
+.fr-res { color: var(--accent); font-size: 13px; margin-top: 3px; }
+.news { list-style: none; margin: 0; padding: 0; font-size: 13px; max-height: 760px; overflow-y: auto; }
+.news li { padding: 7px 0; border-bottom: 1px solid var(--line); }
+.news li .small { display: block; }
+.news-title { color: var(--accent); }
+.news-vacated { color: #f3a37a; }
+.news-upset { color: #8fb8f0; }
+.back { margin-bottom: 8px; }

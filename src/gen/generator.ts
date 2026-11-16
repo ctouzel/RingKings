@@ -296,6 +296,7 @@ export function generateBoxer(
     debutDate: addDays(birthDate, Math.round(debutAge * 365.25) + rng.int(0, 300)),
     stats,
     fightIds: [],
+    seedPoints: 0, // attribué après le classement initial
   };
 }
 
@@ -337,6 +338,10 @@ export function generateLeague(opts: LeagueOptions): League {
     const division = league.divisions[wc];
     division.championId = champion.id;
     division.rankings = scored.slice(1).map((x) => x.b.id);
+    // Points hérités : reflètent le classement initial, puis s'effacent en 2 ans.
+    scored.forEach((x, i) => { x.b.seedPoints = Math.round(260 - i * 14 + rng.float(0, 6)); });
+    // Défenses obligatoires échelonnées pour ne pas tomber toutes en même temps.
+    division.mandatoryDue = addDays(league.currentDate, rng.int(120, 365));
 
     const defenses = rng.int(0, 4);
     division.titleHistory.push({

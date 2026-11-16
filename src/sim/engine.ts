@@ -414,13 +414,15 @@ export function simulateFight(setup: FightSetup): SimOutput {
 
   if (ended) {
     const ordinal = ended.round === 1 ? '1er' : `${ended.round}e`;
-    const clock = ended.t >= ROUND_SECONDS ? 'fin du round' : formatClock(ended.t);
+    const betweenRounds = ended.t >= ROUND_SECONDS;
     return {
       events,
       result: {
         winner: ended.winner, method: ended.method, endRound: ended.round, endTimeSec: Math.min(ended.t, ROUND_SECONDS),
         scorecards, stats, rounds: roundStats, damage,
-        summary: `${ended.method === 'KO' ? 'KO' : 'KO technique'} au ${ordinal} round (${clock})`,
+        summary: betweenRounds
+          ? `KO technique (abandon) après le ${ordinal} round`
+          : `${ended.method === 'KO' ? 'KO' : 'KO technique'} au ${ordinal} round (${formatClock(ended.t)})`,
       },
     };
   }

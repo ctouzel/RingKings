@@ -62,7 +62,7 @@ export function renderFightLab(league: League, lab: LabState): string {
     <div class="lab-result">${resultHtml}</div>`;
 }
 
-function fighterHead(b: Boxer, corner: Corner, winner: Corner | null): string {
+export function fighterHead(b: Boxer, corner: Corner, winner: Corner | null): string {
   const nat = NATIONALITY_INFO[b.nationality];
   const tag = winner === corner ? '<span class="win-tag">VAINQUEUR</span>' : '';
   return `<div class="fh ${corner}">
@@ -71,7 +71,7 @@ function fighterHead(b: Boxer, corner: Corner, winner: Corner | null): string {
   </div>`;
 }
 
-function renderResult(r: FightResult, lines: ReturnType<typeof commentary>, red: Boxer, blue: Boxer): string {
+export function renderResult(r: FightResult, lines: ReturnType<typeof commentary>, red: Boxer, blue: Boxer): string {
   const statRow = (label: string, a: string | number, b: string | number) =>
     `<tr><td class="num">${a}</td><th>${label}</th><td>${b}</td></tr>`;
   const pct = (l: number, t: number) => (t ? `${Math.round((l / t) * 100)} %` : '—');

@@ -17,6 +17,7 @@ npm run build   # vérification des types + build de production
 - `src/model/` — modèle de données (types, libellés, fonctions utilitaires)
 - `src/gen/` — générateur de ligue (noms, attributs, palmarès)
 - `src/sim/` — moteur de combat, juges, commentaires
+- `src/league/` — classement par points, carrières, galas, calendrier, matchmaking
 - `src/ui/` — styles et interface
 - `tests/` — tests Vitest
 
@@ -25,11 +26,30 @@ npm run build   # vérification des types + build de production
 1. ✅ Modèle de données
 2. ✅ Générateur de ligue (75 boxeurs)
 3. ✅ Moteur de simulation de combat
-4. Classements et carrière
+4. ✅ Classements et carrière
 5. Interface de gestion
 6. Visualisation des combats 8-bit
 7. Cycle de saison (âge, progression, retraites)
 8. Finitions (sauvegarde, sons, éditeur de sprites)
+
+## Règles de la ligue
+
+- **Classement par points** : une victoire rapporte `(20 + valeur de l'adversaire)`
+  × méthode (KO ×1,2, décision partagée ×0,85…) × titre (×1,25). Valeur de
+  l'adversaire : champion 100, n°1 85 … n°14 20, non classé 15. Une défaite
+  retire des points (davantage contre un moins bien classé, ×1,3 si arrêté).
+  Les points comptent à 100 % pendant 6 mois puis s'effacent jusqu'à 2 ans.
+- **Défense obligatoire** : le champion doit affronter l'aspirant n°1 dans
+  l'année, sinon le titre devient vacant. Un titre vacant se dispute entre
+  deux boxeurs du top 5.
+- **Repos médical** : 30 jours + selon les dégâts reçus ; +45 à 75 jours après
+  une défaite avant la limite.
+
+Aperçu d'une ligue après 3 ans de galas automatiques :
+
+```bash
+npx vitest run scripts/season.test.ts
+```
 
 ## Calibration du moteur
 
