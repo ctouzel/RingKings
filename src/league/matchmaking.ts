@@ -12,8 +12,8 @@ import { mandatoryBooked } from './calendar';
 import { bookFight, createEvent, plannedFightsOf, type BookOptions } from './events';
 import { RANKED_SPOTS } from './ranking';
 
-const EVENT_NAMES = ['Nuit des Champions', 'Choc des Titans', 'Guerre au Sommet', 'Coup de Tonnerre', 'La Grande Revanche', 'Ring de Feu', 'Soirée Explosive', 'Gants d’Or', 'Rendez-vous Royal', 'Collision'];
-const VENUES: [string, string][] = [
+export const EVENT_NAMES = ['Nuit des Champions', 'Choc des Titans', 'Guerre au Sommet', 'Coup de Tonnerre', 'La Grande Revanche', 'Ring de Feu', 'Soirée Explosive', 'Gants d’Or', 'Rendez-vous Royal', 'Collision'];
+export const VENUES: [string, string][] = [
   ['Centre Vidéotron', 'Québec'], ['Centre Bell', 'Montréal'], ['Madison Square Garden', 'New York'],
   ['MGM Grand Garden Arena', 'Las Vegas'], ['O2 Arena', 'Londres'], ['Arena Ciudad de México', 'Mexico'],
   ['Scotiabank Arena', 'Toronto'], ['Manchester Arena', 'Manchester'], ['Barclays Center', 'Brooklyn'],

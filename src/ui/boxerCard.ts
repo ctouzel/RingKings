@@ -39,7 +39,7 @@ function history(league: League, b: Boxer): string {
   return `<div class="scroll-x"><table class="history"><tbody>${rows}</tbody></table></div>`;
 }
 
-export function boxerCard(league: League, b: Boxer): string {
+export function boxerCard(league: League, b: Boxer, actions = ''): string {
   const nat = NATIONALITY_INFO[b.nationality];
   const s = b.stats;
   const attrs = ATTRIBUTE_KEYS.map((k) => `
@@ -60,6 +60,7 @@ export function boxerCard(league: League, b: Boxer): string {
         <div class="ovr" title="Note globale">${overallRating(b)}</div>
       </div>
       ${unavailable}
+      ${actions ? `<div class="row-btns card-actions">${actions}</div>` : ''}
       <div class="tags">
         <span class="tag" title="${esc(STYLE_INFO[b.style].description)}">${STYLE_INFO[b.style].label}</span>
         <span class="tag">${STANCE_LABEL[b.stance]}</span>

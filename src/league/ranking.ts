@@ -88,3 +88,14 @@ export function rankOf(league: League, id: BoxerId): number | null {
   const i = div.rankings.indexOf(id);
   return i >= 0 && i < RANKED_SPOTS ? i + 1 : null;
 }
+
+/** Enjeu en points d'un combat (victoire / défaite de chaque boxeur, par décision). */
+export function stakes(league: League, a: BoxerId, b: BoxerId, rounds: Fight['scheduledRounds'], title: boolean) {
+  const fake = {
+    scheduledRounds: rounds, isTitleFight: title,
+    rankAtFight: { red: rankOf(league, a), blue: rankOf(league, b) },
+  } as Fight;
+  const res = (winner: Corner) => ({ winner, method: 'UD' } as FightResult);
+  const aWins = fightPoints(fake, res('red')), bWins = fightPoints(fake, res('blue'));
+  return { aWin: aWins.red, aLose: bWins.red, bWin: bWins.blue, bLose: aWins.blue };
+}

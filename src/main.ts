@@ -1,120 +1,167 @@
+/**
+ * Point d'entrée : affiche l'écran actif et distribue les événements aux écrans.
+ * Chaque action modifie l'état (App), puis on ré-affiche tout (simple et fiable).
+ */
 import './ui/style.css';
 import { formatDate } from './core/date';
-import { generateLeague } from './gen/generator';
-import { deserializeLeague, serializeLeague } from './model/league';
-import type { BoxerId, League, WeightClass } from './model/types';
+import { boxerCard } from './ui/boxerCard';
+import { onBoxersClick, onBoxersInput, renderBoxers } from './ui/boxersView';
 import { esc } from './ui/dom';
-import { defaultLab, renderFightLab, setLabDivision, type LabState } from './ui/fightLab';
-import { renderLeague, type ViewState } from './ui/leagueView';
-import { renderEvents, type EventsState } from './ui/eventsView';
-import { Rng } from './core/rng';
-import { runEvent } from './league/events';
-import { autoCard } from './league/matchmaking';
+import { onEventsChange, onEventsClick, onEventsSubmit, openBuilderFor, renderEvents } from './ui/eventsView';
+import { renderFightLab, setLabDivision } from './ui/fightLab';
+import { renderLeague } from './ui/leagueView';
+import { createApp, loadLeague, newLeague, save, type Screen } from './ui/state';
+import { renderStats } from './ui/statsView';
+import type { WeightClass } from './model/types';
 
-const SAVE_KEY = 'ringkings.save';
+const app = createApp(loadLeague());
+save(app);
+const root = document.querySelector<HTMLDivElement>('#app')!;
 
-function loadLeague(): League {
-  try {
-    const saved = localStorage.getItem(SAVE_KEY);
-    if (saved) return deserializeLeague(saved);
-  } catch {
-    // Sauvegarde absente, illisible ou d'une ancienne version : nouvelle ligue.
+const SCREENS: [Screen, string][] = [
+  ['rankings', 'Classements'], ['boxers', 'Boxeurs'], ['events', 'Galas'], ['stats', 'Statistiques'], ['lab', 'Labo'],
+];
+
+function screenHtml(): string {
+  switch (app.screen) {
+    case 'rankings': return renderLeague(app.league, app.rankings);
+    case 'boxers': return renderBoxers(app);
+    case 'events': return renderEvents(app);
+    case 'stats': return renderStats(app);
+    case 'lab': return renderFightLab(app.league, app.lab);
   }
-  return newLeague();
 }
 
-function newLeague(): League {
-  return generateLeague({ seed: Math.floor(Math.random() * 1_000_000) });
+function modalHtml(): string {
+  const b = app.modalBoxer ? app.league.boxers[app.modalBoxer] : null;
+  if (!b) return '';
+  return `<div class="modal" data-close-modal>
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="icon-btn modal-x" data-close-modal title="Fermer">✕</button>
+      ${boxerCard(app.league, b, `<button class="btn" data-schedule="${b.id}">Programmer un combat</button>
+        <button class="btn ghost" data-goto-rank="${b.id}">Voir au classement</button>`)}
+    </div></div>`;
 }
-
-function save(league: League): void {
-  try { localStorage.setItem(SAVE_KEY, serializeLeague(league)); } catch { /* stockage indisponible */ }
-}
-
-type Screen = 'rankings' | 'events' | 'lab';
-
-let league = loadLeague();
-save(league);
-let screen: Screen = 'rankings';
-const view: ViewState = { division: 'heavyweight', selected: null };
-let lab: LabState = defaultLab(league);
-const evState: EventsState = { fightId: null };
-const app = document.querySelector<HTMLDivElement>('#app')!;
 
 function render(): void {
-  const nav = (id: Screen, label: string) =>
-    `<button class="nav ${screen === id ? 'active' : ''}" data-screen="${id}">${label}</button>`;
-  app.innerHTML = `
+  // On mémorise le champ actif pour lui rendre le focus après le ré-affichage (recherche).
+  const active = document.activeElement as HTMLInputElement | null;
+  const focusId = active?.id, caret = active?.selectionStart ?? null;
+
+  const nav = SCREENS.map(([id, label]) =>
+    `<button class="nav ${app.screen === id ? 'active' : ''}" data-screen="${id}">${label}</button>`).join('');
+  const flash = app.flash ? `<div class="flash ${app.flash.kind}" data-flash>${esc(app.flash.text)}</div>` : '';
+  root.innerHTML = `
     <header>
       <h1>RINGKINGS</h1>
-      <nav class="main-nav">${nav('rankings', 'Classements')}${nav('events', 'Galas')}${nav('lab', 'Labo de combat')}</nav>
+      <nav class="main-nav">${nav}</nav>
       <div class="header-info">
-        <span>${esc(league.name)} · ${formatDate(league.currentDate)}</span>
+        <span>${esc(app.league.name)} · <b>${formatDate(app.league.currentDate)}</b></span>
         <button id="new-league" class="btn ghost">Nouvelle ligue</button>
       </div>
     </header>
-    <main>${screen === 'rankings' ? renderLeague(league, view) : screen === 'events' ? renderEvents(league, evState) : renderFightLab(league, lab)}</main>`;
+    <main>${flash}${screenHtml()}</main>
+    ${modalHtml()}`;
+  app.flash = null;
+
+  if (focusId) {
+    const el = document.getElementById(focusId) as HTMLInputElement | null;
+    if (el) { el.focus(); if (caret !== null) el.setSelectionRange(caret, caret); }
+  }
 }
 
-app.addEventListener('click', (e) => {
-  const target = e.target as HTMLElement;
-  const nav = target.closest<HTMLElement>('[data-screen]');
-  if (nav) {
-    screen = nav.dataset.screen as Screen;
-    evState.fightId = null;
+/** Après une action : sauvegarde et ré-affichage. */
+function update(): void {
+  save(app);
+  render();
+}
+
+root.addEventListener('click', (e) => {
+  const t = e.target as HTMLElement;
+
+  // Fenêtre de fiche boxeur.
+  if (t.matches('[data-close-modal]')) { app.modalBoxer = null; return render(); }
+  const sched = t.closest<HTMLElement>('[data-schedule]');
+  if (sched) { app.modalBoxer = null; openBuilderFor(app, sched.dataset.schedule!); window.scrollTo(0, 0); return update(); }
+  const goto = t.closest<HTMLElement>('[data-goto-rank]');
+  if (goto) {
+    const b = app.league.boxers[goto.dataset.gotoRank!]!;
+    app.modalBoxer = null;
+    app.screen = 'rankings';
+    app.rankings = { division: b.weightClass, selected: b.id };
     return render();
   }
-  const fightEl = target.closest<HTMLElement>('[data-fight]');
-  if (fightEl) {
-    screen = 'events';
-    evState.fightId = fightEl.dataset.fight!;
+  const modalRow = t.closest<HTMLElement>('[data-boxer-modal]');
+  if (modalRow) { app.modalBoxer = modalRow.dataset.boxerModal!; return render(); }
+
+  // Navigation.
+  const nav = t.closest<HTMLElement>('[data-screen]');
+  if (nav) { app.screen = nav.dataset.screen as Screen; app.events.fightId = null; return render(); }
+  if (t.id === 'new-league') {
+    if (!confirm('Générer une nouvelle ligue ? La ligue actuelle sera remplacée.')) return;
+    const fresh = createApp(newLeague());
+    Object.assign(app, fresh);
+    return update();
+  }
+
+  // Un combat cliqué depuis n'importe quel écran (historique, records) : détail dans Galas.
+  const fight = t.closest<HTMLElement>('[data-fight]');
+  if (fight && app.screen !== 'events') {
+    app.modalBoxer = null;
+    app.screen = 'events';
+    app.events.fightId = fight.dataset.fight!;
     window.scrollTo(0, 0);
     return render();
   }
-  if (target.closest('[data-back]')) {
-    evState.fightId = null;
-    return render();
+
+  switch (app.screen) {
+    case 'rankings': {
+      const tab = t.closest<HTMLElement>('[data-division]');
+      if (tab) { app.rankings = { division: tab.dataset.division as WeightClass, selected: null }; return render(); }
+      const row = t.closest<HTMLElement>('[data-boxer]');
+      if (row) { app.rankings.selected = row.dataset.boxer!; return render(); }
+      break;
+    }
+    case 'boxers':
+      if (onBoxersClick(app, t)) return render();
+      break;
+    case 'events':
+      if (onEventsClick(app, t)) return update();
+      break;
+    case 'lab':
+      if (t.id === 'lab-run') { app.lab.seed = Math.floor(Math.random() * 2 ** 32); return render(); }
+      break;
   }
-  if (target.id === 'quick-gala') {
-    const ev = autoCard(league, new Rng(Math.floor(Math.random() * 2 ** 32)));
-    runEvent(league, ev.id);
-    save(league);
-    return render();
-  }
-  const tab = target.closest<HTMLElement>('[data-division]');
-  if (tab) {
-    view.division = tab.dataset.division as WeightClass;
-    view.selected = null;
-    return render();
-  }
-  const row = target.closest<HTMLElement>('[data-boxer]');
-  if (row) {
-    view.selected = row.dataset.boxer as BoxerId;
-    return render();
-  }
-  if (target.id === 'lab-run') {
-    lab.seed = Math.floor(Math.random() * 2 ** 32);
-    return render();
-  }
-  if (target.id === 'new-league' && confirm('Générer une nouvelle ligue ? La ligue actuelle sera remplacée.')) {
-    league = newLeague();
-    save(league);
-    view.selected = null;
-    evState.fightId = null;
-    lab = defaultLab(league);
+});
+
+function onFieldChange(e: Event): void {
+  const el = e.target as HTMLInputElement | HTMLSelectElement;
+  if (app.screen === 'boxers' && onBoxersInput(app, el)) return render();
+  if (e.type !== 'change') return;
+  if (app.screen === 'events' && onEventsChange(app, el)) return render();
+  if (app.screen === 'lab') {
+    const lab = app.lab;
+    if (el.id === 'lab-division') setLabDivision(app.league, lab, el.value as WeightClass);
+    else if (el.id === 'lab-red') lab.red = el.value;
+    else if (el.id === 'lab-blue') lab.blue = el.value;
+    else if (el.id === 'lab-rounds') lab.rounds = Number(el.value);
+    else return;
+    lab.seed = null;
     render();
   }
+}
+root.addEventListener('input', onFieldChange);
+root.addEventListener('change', onFieldChange);
+
+root.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (app.screen === 'events' && onEventsSubmit(app, e.target as HTMLFormElement)) update();
 });
 
-app.addEventListener('change', (e) => {
-  const el = e.target as HTMLSelectElement;
-  if (el.id === 'lab-division') setLabDivision(league, lab, el.value as WeightClass);
-  else if (el.id === 'lab-red') lab.red = el.value;
-  else if (el.id === 'lab-blue') lab.blue = el.value;
-  else if (el.id === 'lab-rounds') lab.rounds = Number(el.value);
-  else return;
-  lab.seed = null; // nouveau choix : on efface l'ancien résultat
-  render();
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && app.modalBoxer) { app.modalBoxer = null; render(); }
 });
 
+// Rend la variable accessible pour déboguer dans la console du navigateur.
+(window as unknown as { ringkings: typeof app }).ringkings = app;
 render();

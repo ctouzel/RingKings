@@ -104,6 +104,40 @@ export function unbookFight(league: League, fightId: string): void {
   markMainEvent(league, ev);
 }
 
+/** Déplace un combat sur la carte (-1 = plus tôt, +1 = plus tard). Le dernier est le combat principal. */
+export function moveFight(league: League, fightId: string, dir: -1 | 1): void {
+  const f = league.fights[fightId];
+  if (!f || f.result) return;
+  const ev = league.events[f.eventId]!;
+  const i = ev.fightIds.indexOf(fightId), j = i + dir;
+  if (j < 0 || j >= ev.fightIds.length) return;
+  [ev.fightIds[i], ev.fightIds[j]] = [ev.fightIds[j]!, ev.fightIds[i]!];
+  markMainEvent(league, ev);
+}
+
+/** Fait d'un combat le combat principal (dernier de la carte). */
+export function setMainEvent(league: League, fightId: string): void {
+  const f = league.fights[fightId];
+  if (!f || f.result) return;
+  const ev = league.events[f.eventId]!;
+  ev.fightIds = [...ev.fightIds.filter((id) => id !== fightId), fightId];
+  markMainEvent(league, ev);
+}
+
+/** Annule un gala prévu (et ses combats). */
+export function deleteEvent(league: League, eventId: string): void {
+  const ev = league.events[eventId];
+  if (!ev || ev.status !== 'planned') return;
+  for (const id of ev.fightIds) delete league.fights[id];
+  delete league.events[eventId];
+}
+
+/** Galas prévus, du plus proche au plus lointain. */
+export function plannedEvents(league: League): FightEvent[] {
+  return Object.values(league.events).filter((e) => e.status === 'planned')
+    .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+}
+
 /** Le dernier combat de la carte est le combat principal. */
 function markMainEvent(league: League, ev: FightEvent): void {
   ev.fightIds.forEach((id, i) => { league.fights[id]!.isMainEvent = i === ev.fightIds.length - 1; });
@@ -126,6 +160,8 @@ export function replayFight(league: League, fight: Fight) {
 export function runEvent(league: League, eventId: string): Fight[] {
   const ev = league.events[eventId];
   if (!ev || ev.status !== 'planned') throw new Error('Gala introuvable ou déjà disputé.');
+  if (plannedEvents(league)[0]?.id !== ev.id) throw new Error('Les galas se disputent dans l’ordre chronologique.');
+  if (ev.fightIds.length === 0) throw new Error('La carte est vide.');
   advanceTo(league, ev.date);
 
   const fights = ev.fightIds.map((id) => league.fights[id]!);

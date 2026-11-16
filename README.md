@@ -27,7 +27,7 @@ npm run build   # vérification des types + build de production
 2. ✅ Générateur de ligue (75 boxeurs)
 3. ✅ Moteur de simulation de combat
 4. ✅ Classements et carrière
-5. Interface de gestion
+5. ✅ Interface de gestion
 6. Visualisation des combats 8-bit
 7. Cycle de saison (âge, progression, retraites)
 8. Finitions (sauvegarde, sons, éditeur de sprites)

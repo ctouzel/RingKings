@@ -83,6 +83,6 @@ export function renderLeague(league: League, state: ViewState): string {
           </table>
         </section>
       </div>
-      <section>${selected ? boxerCard(league, selected) : ''}</section>
+      <section>${selected ? boxerCard(league, selected, `<button class="btn" data-schedule="${selected.id}">Programmer un combat</button>`) : ''}</section>
     </div>`;
 }
