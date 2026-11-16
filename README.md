@@ -44,6 +44,8 @@ npm run build   # vérification des types + build de production
 - **Couleurs** : `src/viz/palette.ts` (peaux, cheveux, ring, foule).
 - **Rythme** : `TIMING` dans `src/viz/timeline.ts` (durée des coups, du compte,
   nombre d'échanges gardés par round en mode résumé).
+- **En jeu** : bouton « Personnaliser » sur la fiche d'un boxeur (peau, coiffure,
+  cheveux, barbe, carrure, couleurs du short et des gants) avec aperçu animé.
 - Raccourcis du lecteur : espace = pause, ← / → = reculer / avancer de 5 s, Échap = fermer.
 
 ## Sauvegardes

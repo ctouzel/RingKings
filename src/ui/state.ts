@@ -5,6 +5,7 @@
 import { generateLeague } from '../gen/generator';
 import type { BoxerId, EventId, FightId, League, WeightClass } from '../model/types';
 import { defaultLab, type LabState } from './fightLab';
+import type { EditorState } from './editorView';
 import { activeSlot, saveSlot, type Slot, type SlotMeta } from './storage';
 
 export type Screen = 'rankings' | 'boxers' | 'events' | 'season' | 'stats' | 'lab';
@@ -31,6 +32,8 @@ export interface App {
   flash: { kind: 'ok' | 'err'; text: string } | null;
   /** Emplacement de sauvegarde de la partie en cours. */
   slot: Slot;
+  /** Éditeur d'apparence ouvert. */
+  editor: EditorState | null;
   /** Fenêtre « Partie » (sauvegardes) : null = fermée. */
   saves: { metas: (SlotMeta | null)[] } | null;
 }
@@ -57,6 +60,7 @@ export function createApp(league: League, slot: Slot = activeSlot()): App {
   return {
     slot,
     saves: null,
+    editor: null,
     league,
     screen: 'rankings',
     rankings: { division: 'heavyweight', selected: null },

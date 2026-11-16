@@ -14,6 +14,7 @@ import { createApp, newLeague, save, type App, type Screen } from './ui/state';
 import { onSavesChange, onSavesClick, onSavesSubmit, openSaves, renderSaves } from './ui/savesView';
 import { activeSlot, loadSlot, migrateLegacy, setActiveSlot } from './ui/storage';
 import { renderStats } from './ui/statsView';
+import { onEditorClick, onEditorInput, openEditor, renderEditor, syncEditorPreview } from './ui/editorView';
 import { onSeasonClick, renderSeason } from './ui/seasonView';
 import { openViewer, paintSprites } from './ui/viewer';
 import { simulateFight } from './sim/engine';
@@ -45,7 +46,8 @@ function modalHtml(): string {
     <div class="modal-box" role="dialog" aria-modal="true">
       <button class="icon-btn modal-x" data-close-modal title="Fermer">✕</button>
       ${boxerCard(app.league, b, `<button class="btn" data-schedule="${b.id}">Programmer un combat</button>
-        <button class="btn ghost" data-goto-rank="${b.id}">Voir au classement</button>`)}
+        <button class="btn ghost" data-goto-rank="${b.id}">Voir au classement</button>
+        <button class="btn ghost" data-edit-look="${b.id}">Personnaliser</button>`)}
     </div></div>`;
 }
 
@@ -69,9 +71,11 @@ function render(): void {
     </header>
     <main>${flash}${screenHtml()}</main>
     ${modalHtml()}
-    ${renderSaves(app)}`;
+    ${renderSaves(app)}
+    ${renderEditor(app)}`;
   app.flash = null;
   paintSprites(app.league, root);
+  if (app.editor) syncEditorPreview(app, app.league.boxers[app.editor.boxerId]!.heightCm);
 
   if (focusId) {
     const el = document.getElementById(focusId) as HTMLInputElement | null;
@@ -94,6 +98,12 @@ root.addEventListener('click', async (e) => {
     if (await onSavesClick(app, t)) render();
     return;
   }
+  if (app.editor) {
+    if (onEditorClick(app, t)) update();
+    return;
+  }
+  const look = t.closest<HTMLElement>('[data-edit-look]');
+  if (look) { app.modalBoxer = null; openEditor(app, look.dataset.editLook!); return render(); }
 
   // Fenêtre de fiche boxeur.
   if (t.matches('[data-close-modal]')) { app.modalBoxer = null; return render(); }
@@ -160,6 +170,7 @@ function onFieldChange(e: Event): void {
     if (e.type === 'change') void onSavesChange(app, el as HTMLInputElement).then((changed) => changed && render());
     return;
   }
+  if (app.editor) { if (e.type === 'change' && onEditorInput(app, el as HTMLInputElement)) render(); return; }
   if (app.screen === 'boxers' && onBoxersInput(app, el)) return render();
   if (e.type !== 'change') return;
   if (app.screen === 'events' && onEventsChange(app, el)) return render();
@@ -185,6 +196,7 @@ root.addEventListener('submit', (e) => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && app.saves) { app.saves = null; render(); return; }
+  if (e.key === 'Escape' && app.editor) { app.editor = null; render(); return; }
   if (e.key === 'Escape' && app.modalBoxer) { app.modalBoxer = null; render(); }
 });
 

@@ -331,3 +331,17 @@ ul.plain li { padding: 6px 0; border-bottom: 1px solid var(--line); }
 .btn { font-size: 13px; }
 .file-btn { display: inline-flex; align-items: center; cursor: pointer; }
 @media (max-width: 600px) { .slot { grid-template-columns: 30px 1fr; } .slot .row-btns { grid-column: 1 / -1; } }
+
+/* ---- Finitions : éditeur d'apparence ---- */
+.editor-grid { display: grid; grid-template-columns: minmax(0, 320px) 1fr; gap: 18px; align-items: start; }
+#editor-preview { width: 100%; image-rendering: pixelated; border-radius: 6px; border: 3px solid #2a2440; background: #000; }
+.editor-controls { display: flex; flex-direction: column; gap: 10px; }
+.ed-row { display: grid; grid-template-columns: 80px 1fr; gap: 8px; align-items: center; font-size: 13px; }
+.ed-row > span { color: var(--muted); font-weight: 600; }
+.ed-row > div { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.swatch { width: 24px; height: 24px; border-radius: 4px; border: 2px solid var(--line); cursor: pointer; padding: 0; }
+.swatch.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.chip { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 4px 10px; font: 600 12px Inter, sans-serif; cursor: pointer; }
+.chip.on { background: var(--accent); color: #111; border-color: var(--accent); }
+.ed-row input[type=color] { width: 30px; height: 26px; border: 0; padding: 0; background: none; cursor: pointer; }
+@media (max-width: 700px) { .editor-grid { grid-template-columns: 1fr; } .ed-row { grid-template-columns: 1fr; } }
