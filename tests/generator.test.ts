@@ -56,6 +56,8 @@ describe('generateLeague', () => {
       expect(s.koWins).toBeLessThanOrEqual(s.wins);
       expect(s.koLosses).toBeLessThanOrEqual(s.losses);
       expect(s.punchesLanded).toBeLessThanOrEqual(s.punchesThrown);
+      expect(s.knockdownsSuffered).toBeGreaterThanOrEqual(s.koLosses);
+      expect(s.knockdownsScored).toBeGreaterThanOrEqual(0);
       expect(b.development.potential).toBeGreaterThanOrEqual(overallRating(b));
     }
   });

@@ -57,7 +57,10 @@ export function boxerCard(league: League, b: Boxer, actions = ''): string {
           <h2>${esc(displayName(b))}</h2>
           <div class="sub">${nat.flag} ${esc(b.hometown)}, ${esc(nat.country)} · ${ageOn(b.birthDate, league.currentDate)} ans</div>
         </div>
-        <div class="ovr" title="Note globale">${overallRating(b)}</div>
+        <div class="card-side">
+          <canvas class="sprite-preview" data-sprite="${b.id}" width="44" height="70" aria-label="Sprite du boxeur"></canvas>
+          <div class="ovr" title="Note globale">${overallRating(b)}</div>
+        </div>
       </div>
       ${unavailable}
       ${actions ? `<div class="row-btns card-actions">${actions}</div>` : ''}

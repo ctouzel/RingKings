@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galerie de sprites</title>
+  <style>
+    body { margin: 0; background: #12131a; color: #e8e9f0; font: 14px system-ui, sans-serif; padding: 16px; }
+    canvas { image-rendering: pixelated; width: 100%; max-width: 1280px; background: #3c78c8; display: block; }
+    p { color: #9a9db0; }
+  </style>
+</head>
+<body>
+  <h1>Galerie de sprites</h1>
+  <p>Toutes les poses (src/viz/poses.ts) pour plusieurs apparences. Modifie les poses ou les grilles (src/viz/heads.ts), la page se recharge seule avec <code>npm run dev</code>.</p>
+  <canvas id="c" width="320" height="300"></canvas>
+  <script type="module" src="./sprites.ts"></script>
+</body>
+</html>

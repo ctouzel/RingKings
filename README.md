@@ -18,6 +18,8 @@ npm run build   # vérification des types + build de production
 - `src/gen/` — générateur de ligue (noms, attributs, palmarès)
 - `src/sim/` — moteur de combat, juges, commentaires
 - `src/league/` — classement par points, carrières, galas, calendrier, matchmaking
+- `src/viz/` — lecteur 8-bit : sprites, poses, décor, timeline, animation
+- `dev/sprites.html` — galerie de sprites (ouvrir `/dev/sprites.html` avec `npm run dev`)
 - `src/ui/` — styles et interface
 - `tests/` — tests Vitest
 
@@ -28,9 +30,21 @@ npm run build   # vérification des types + build de production
 3. ✅ Moteur de simulation de combat
 4. ✅ Classements et carrière
 5. ✅ Interface de gestion
-6. Visualisation des combats 8-bit
+6. ✅ Visualisation des combats 8-bit
 7. Cycle de saison (âge, progression, retraites)
 8. Finitions (sauvegarde, sons, éditeur de sprites)
+
+## Sprites et animation
+
+- **Têtes, coiffures, barbes, gants** : grilles de caractères dans `src/viz/heads.ts`
+  (un caractère = un pixel : `S` peau, `H` cheveux, `E` œil…). Ajouter une coiffure =
+  ajouter une grille à `HAIR_STYLES`.
+- **Poses** : points du squelette dans `src/viz/poses.ts` (garde, jab, direct, crochet,
+  uppercut, corps, touché, esquive, accrochage, genou à terre, au tapis, victoire, arbitre).
+- **Couleurs** : `src/viz/palette.ts` (peaux, cheveux, ring, foule).
+- **Rythme** : `TIMING` dans `src/viz/timeline.ts` (durée des coups, du compte,
+  nombre d'échanges gardés par round en mode résumé).
+- Raccourcis du lecteur : espace = pause, ← / → = reculer / avancer de 5 s, Échap = fermer.
 
 ## Règles de la ligue
 

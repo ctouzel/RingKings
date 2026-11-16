@@ -199,7 +199,7 @@ function generateRecord(rng: Rng, attrs: Attributes, style: FightingStyle, ratin
   s.punchesLanded = Math.round(s.punchesThrown * clamp(0.18 + attrs.accuracy * 0.0025, 0.2, 0.48));
   s.powerPunchesLanded = Math.round(s.punchesLanded * rng.float(0.4, 0.55));
   s.knockdownsScored = Math.round(s.koWins * rng.float(1.1, 1.6) + s.wins * 0.08);
-  s.knockdownsSuffered = Math.round(s.koLosses * rng.float(1.1, 1.5) + s.losses * 0.2 + (fights * (75 - attrs.chin)) / 400);
+  s.knockdownsSuffered = Math.max(s.koLosses, Math.round(s.koLosses * rng.float(1.1, 1.5) + s.losses * 0.2 + (fights * Math.max(0, 75 - attrs.chin)) / 400));
   return s;
 }
 

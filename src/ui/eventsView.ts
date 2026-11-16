@@ -19,6 +19,7 @@ import { WEIGHT_CLASSES } from '../model/types';
 import { commentary } from '../sim/commentary';
 import { esc } from './dom';
 import { renderResult } from './fightLab';
+import { watchFight } from './viewer';
 import { emptyBuilder, type App } from './state';
 
 // ---------------------------------------------------------------------------
@@ -136,8 +137,10 @@ function plannedPanel(app: App, ev: FightEvent, isNext: boolean): string {
         </div>
         <div class="row-btns">
           ${open ? '' : `<button class="btn ghost" data-act="open" data-id="${ev.id}">Composer la carte</button>`}
-          <button class="btn" data-act="run" data-id="${ev.id}" ${isNext && fights.length ? '' : 'disabled'}
-            title="${isNext ? '' : 'Un gala plus proche doit être disputé avant'}">Disputer le gala</button>
+          <button class="btn" data-act="run-watch" data-id="${ev.id}" ${isNext && fights.length ? '' : 'disabled'}
+            title="${isNext ? 'Dispute le gala et ouvre le combat principal en 8-bit' : 'Un gala plus proche doit être disputé avant'}">▶ Disputer et regarder</button>
+          <button class="btn ghost" data-act="run" data-id="${ev.id}" ${isNext && fights.length ? '' : 'disabled'}
+            title="${isNext ? 'Résultats immédiats' : 'Un gala plus proche doit être disputé avant'}">Disputer (résultats)</button>
         </div>
       </div>
       ${fights.length ? `<ul class="fights">${fights.map((f, i) => fightRow(league, f, open, i, fights.length)).join('')}</ul>` : '<p class="muted small">La carte est vide.</p>'}
@@ -193,7 +196,8 @@ export function renderEvents(app: App): string {
     const { events } = replayFight(league, f);
     const ev = league.events[f.eventId]!;
     return `
-      <button class="btn ghost back" data-back>← Retour aux galas</button>
+      <div class="row-btns"><button class="btn ghost back" data-back>← Retour aux galas</button>
+        <button class="btn" data-watch="${f.id}">▶ Regarder le combat</button></div>
       <p class="muted">${esc(ev.name)} · ${esc(ev.venue)}, ${esc(ev.city)} · ${formatDate(ev.date)}</p>
       ${renderResult(f.result!, commentary(events, { red: fullName(red), blue: fullName(blue) }), red, blue)}`;
   }
@@ -253,6 +257,8 @@ export function onEventsClick(app: App, target: HTMLElement): boolean {
   const st = app.events;
   const el = target.closest<HTMLElement>('[data-act]');
   if (target.closest('[data-back]')) { st.fightId = null; return true; }
+  const watch = target.closest<HTMLElement>('[data-watch]');
+  if (watch) { watchFight(league, league.fights[watch.dataset.watch!]!); return false; }
   if (!el) {
     const fight = target.closest<HTMLElement>('[data-fight]');
     if (fight) { st.fightId = fight.dataset.fight!; window.scrollTo(0, 0); return true; }
@@ -298,11 +304,16 @@ export function onEventsClick(app: App, target: HTMLElement): boolean {
         app.flash = { kind: added ? 'ok' : 'err', text: added ? `${added} combat(s) ajouté(s).` : 'Aucun combat disponible à ajouter.' };
         return true;
       }
-      case 'run': {
+      case 'run':
+      case 'run-watch': {
         const ev = league.events[id]!;
         runEvent(league, id);
         st.openEvent = null;
         app.flash = { kind: 'ok', text: `${ev.name} disputé ! Résultats ci-dessous.` };
+        if (el.dataset.act === 'run-watch') {
+          const main = league.fights[ev.fightIds[ev.fightIds.length - 1]!]!;
+          watchFight(league, main);
+        }
         return true;
       }
       case 'quick': {

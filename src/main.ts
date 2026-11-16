@@ -12,6 +12,9 @@ import { renderFightLab, setLabDivision } from './ui/fightLab';
 import { renderLeague } from './ui/leagueView';
 import { createApp, loadLeague, newLeague, save, type Screen } from './ui/state';
 import { renderStats } from './ui/statsView';
+import { openViewer, paintSprites } from './ui/viewer';
+import { simulateFight } from './sim/engine';
+import { fighterFromBoxer } from './sim/fighter';
 import type { WeightClass } from './model/types';
 
 const app = createApp(loadLeague());
@@ -63,6 +66,7 @@ function render(): void {
     <main>${flash}${screenHtml()}</main>
     ${modalHtml()}`;
   app.flash = null;
+  paintSprites(app.league, root);
 
   if (focusId) {
     const el = document.getElementById(focusId) as HTMLInputElement | null;
@@ -130,6 +134,13 @@ root.addEventListener('click', (e) => {
       break;
     case 'lab':
       if (t.id === 'lab-run') { app.lab.seed = Math.floor(Math.random() * 2 ** 32); return render(); }
+      if (t.id === 'lab-watch') {
+        const { red, blue, rounds, division, seed } = app.lab;
+        const R = app.league.boxers[red!]!, B = app.league.boxers[blue!]!;
+        const out = simulateFight({ red: fighterFromBoxer(R), blue: fighterFromBoxer(B), rounds, weightClass: division, seed: seed! });
+        openViewer({ ...out, red: R, blue: B, title: 'Labo de combat · combat d’exhibition' });
+        return;
+      }
       break;
   }
 });

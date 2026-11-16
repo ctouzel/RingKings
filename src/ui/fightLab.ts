@@ -47,7 +47,8 @@ export function renderFightLab(league: League, lab: LabState): string {
       red: fighterFromBoxer(red), blue: fighterFromBoxer(blue),
       rounds: lab.rounds, weightClass: lab.division, seed: lab.seed,
     });
-    resultHtml = renderResult(result, commentary(events, { red: fullName(red), blue: fullName(blue) }), red, blue);
+    resultHtml = `<div class="row-btns" style="margin-bottom:12px"><button class="btn" id="lab-watch">▶ Regarder ce combat</button></div>`
+      + renderResult(result, commentary(events, { red: fullName(red), blue: fullName(blue) }), red, blue);
   }
 
   return `
