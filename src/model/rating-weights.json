@@ -1,0 +1,57 @@
+{
+  "slugger": {
+    "power": 0.211,
+    "handSpeed": 0.059,
+    "accuracy": 0.178,
+    "defense": 0.082,
+    "footwork": 0.103,
+    "chin": 0.06,
+    "stamina": 0.156,
+    "recovery": 0.087,
+    "ringIQ": 0.067
+  },
+  "outBoxer": {
+    "power": 0.063,
+    "handSpeed": 0.065,
+    "accuracy": 0.11,
+    "defense": 0.149,
+    "footwork": 0.136,
+    "chin": 0.129,
+    "stamina": 0.144,
+    "recovery": 0.118,
+    "ringIQ": 0.091
+  },
+  "counterPuncher": {
+    "power": 0.124,
+    "handSpeed": 0.075,
+    "accuracy": 0.121,
+    "defense": 0.143,
+    "footwork": 0.113,
+    "chin": 0.097,
+    "stamina": 0.171,
+    "recovery": 0.09,
+    "ringIQ": 0.068
+  },
+  "swarmer": {
+    "power": 0.071,
+    "handSpeed": 0.098,
+    "accuracy": 0.12,
+    "defense": 0.116,
+    "footwork": 0.184,
+    "chin": 0.075,
+    "stamina": 0.166,
+    "recovery": 0.084,
+    "ringIQ": 0.089
+  },
+  "boxerPuncher": {
+    "power": 0.105,
+    "handSpeed": 0.112,
+    "accuracy": 0.139,
+    "defense": 0.126,
+    "footwork": 0.092,
+    "chin": 0.071,
+    "stamina": 0.167,
+    "recovery": 0.118,
+    "ringIQ": 0.074
+  }
+}

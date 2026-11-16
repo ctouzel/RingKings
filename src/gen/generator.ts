@@ -53,7 +53,7 @@ const STYLE_WEIGHTS: Record<FightingStyle, number> = {
 };
 
 /** Bonus/malus d'attributs selon le style (le "profil" du boxeur). */
-const STYLE_MODS: Record<FightingStyle, Partial<Attributes>> = {
+export const STYLE_MODS: Record<FightingStyle, Partial<Attributes>> = {
   slugger: { power: 12, chin: 6, recovery: 4, handSpeed: -5, footwork: -8, defense: -6, accuracy: -2, ringIQ: -2 },
   outBoxer: { footwork: 10, defense: 7, handSpeed: 6, accuracy: 4, ringIQ: 3, power: -10, chin: -5, recovery: -4 },
   counterPuncher: { accuracy: 10, defense: 8, ringIQ: 8, handSpeed: 3, stamina: -5, chin: -4, footwork: -2, recovery: -3 },

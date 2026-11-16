@@ -1,6 +1,7 @@
 import type {
   Attributes, Boxer, CareerStats, FightingStyle, IsoDate,
 } from './types';
+import MEASURED_WEIGHTS from './rating-weights.json';
 
 /** Statistiques de carrière vierges (nouveau boxeur). */
 export function emptyCareerStats(): CareerStats {
@@ -37,17 +38,35 @@ export function recordString(s: CareerStats): string {
 }
 
 /**
- * Pondération des attributs selon le style pour calculer la note globale.
- * Un cogneur est jugé surtout sur la puissance et le menton, un technicien sur
- * la vitesse, la défense et le jeu de jambes, etc. Chaque ligne somme à 1.
+ * "Identité" de chaque style : ce qu'on attend intuitivement d'un cogneur,
+ * d'un technicien, etc. Chaque ligne somme à 1.
  */
-const STYLE_WEIGHTS: Record<FightingStyle, Attributes> = {
+const STYLE_IDENTITY: Record<FightingStyle, Attributes> = {
   slugger:        { power: .24, handSpeed: .08, accuracy: .10, defense: .06, footwork: .04, chin: .18, stamina: .12, recovery: .10, ringIQ: .08 },
   outBoxer:       { power: .06, handSpeed: .16, accuracy: .14, defense: .16, footwork: .18, chin: .06, stamina: .10, recovery: .04, ringIQ: .10 },
   counterPuncher: { power: .12, handSpeed: .14, accuracy: .18, defense: .18, footwork: .08, chin: .06, stamina: .06, recovery: .04, ringIQ: .14 },
   swarmer:        { power: .10, handSpeed: .14, accuracy: .08, defense: .06, footwork: .08, chin: .14, stamina: .20, recovery: .12, ringIQ: .08 },
   boxerPuncher:   { power: .14, handSpeed: .12, accuracy: .12, defense: .12, footwork: .10, chin: .10, stamina: .10, recovery: .08, ringIQ: .12 },
 };
+
+/**
+ * Pondération utilisée pour la note globale : 70 % valeur réelle de chaque
+ * attribut dans le moteur de combat (mesurée par scripts/attr-value.test.ts,
+ * stockée dans rating-weights.json) + 30 % identité du style.
+ * Ainsi, deux boxeurs de même note ont des chances comparables.
+ */
+const STYLE_WEIGHTS = {} as Record<FightingStyle, Attributes>;
+for (const style of Object.keys(STYLE_IDENTITY) as FightingStyle[]) {
+  const measured = (MEASURED_WEIGHTS as Record<FightingStyle, Attributes>)[style];
+  const w = {} as Attributes;
+  let total = 0;
+  for (const k of Object.keys(STYLE_IDENTITY[style]) as (keyof Attributes)[]) {
+    w[k] = 0.7 * measured[k] + 0.3 * STYLE_IDENTITY[style][k];
+    total += w[k];
+  }
+  for (const k of Object.keys(w) as (keyof Attributes)[]) w[k] /= total;
+  STYLE_WEIGHTS[style] = w;
+}
 
 /** Note globale 1–100, pondérée par le style du boxeur. */
 export function overallRating(b: Pick<Boxer, 'attributes' | 'style'>): number {

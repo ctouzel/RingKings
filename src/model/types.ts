@@ -191,8 +191,19 @@ export interface FightResult {
   endTimeSec: number; // seconde dans le round (0–180)
   scorecards: Scorecard[]; // 3 juges
   stats: Record<Corner, FightStats>;
+  /** Statistiques round par round (coups lancés/portés, knockdowns). */
+  rounds: Record<Corner, RoundStats>[];
+  /** Dégâts accumulés en fin de combat (0–100+) : servira aux blessures. */
+  damage: Record<Corner, number>;
   /** Résumé lisible, ex. "KO au 7e round (2:13)". */
   summary: string;
+}
+
+export interface RoundStats {
+  thrown: number;
+  landed: number;
+  powerLanded: number;
+  knockdowns: number; // knockdowns infligés dans ce round
 }
 
 export interface Fight {
