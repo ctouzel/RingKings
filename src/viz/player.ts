@@ -7,6 +7,8 @@ import type { Corner, FightResult } from '../model/types';
 import { drawFighter, posePoint, type SpriteLook } from './fighterSprite';
 import { frameAt, type Frame } from './frame';
 import { POSES } from './poses';
+import { isMuted, setMuted, sfx } from './audio';
+import { TIMING } from './timeline';
 import { drawBackground, drawRingFront, drawSpark, GROUND_Y, H, REF_Y, W } from './scene';
 import { addResult, buildTimeline, type Timeline, type ViewMode } from './timeline';
 
@@ -43,6 +45,9 @@ export class FightPlayer {
   private raf = 0;
   private lastTs = 0;
   private els: Record<string, HTMLElement> = {};
+  /** Sons à déclencher (instant, action), recalculés à chaque changement de mode. */
+  private cues: { at: number; play: () => void }[] = [];
+  private lastSoundT = 0;
   private names: Record<Corner, string>;
 
   constructor(container: HTMLElement, private opts: PlayerOptions) {
@@ -87,6 +92,7 @@ export class FightPlayer {
           <span class="vw-group"><button data-ctl="mode" data-v="summary" class="on">Résumé</button><button data-ctl="mode" data-v="full">Complet</button></span>
           <button data-ctl="next" title="Round suivant">Round ⏭</button>
           <button data-ctl="end" title="Aller au résultat">Résultat ⏩</button>
+          <button data-ctl="mute" data-el="mute" title="Son">${isMuted() ? '🔇' : '🔊'}</button>
           ${this.opts.onClose ? '<button data-ctl="close" class="vw-close">Fermer ✕</button>' : ''}
         </div>
       </div>`;
@@ -99,6 +105,8 @@ export class FightPlayer {
     const tl = buildTimeline(this.opts.events, this.names, mode);
     this.tl = addResult(tl, r.winner, r.summary, r.winner ? this.names[r.winner] : null);
     this.t = this.tl.roundStarts[round] ?? 0;
+    this.buildCues();
+    this.lastSoundT = this.t;
     for (const b of this.root.querySelectorAll<HTMLElement>('[data-ctl="mode"]')) b.classList.toggle('on', b.dataset.v === mode);
     this.draw();
   }
@@ -129,6 +137,10 @@ export class FightPlayer {
       }
       case 'end': this.t = this.resultTime(); this.playing = true; break;
       case 'close': this.destroy(); this.opts.onClose?.(); return;
+      case 'mute':
+        setMuted(!isMuted());
+        b.textContent = isMuted() ? '🔇' : '🔊';
+        break;
     }
     this.draw();
   }
@@ -152,11 +164,56 @@ export class FightPlayer {
     const dt = Math.min(0.1, (ts - this.lastTs) / 1000);
     this.lastTs = ts;
     if (this.playing) {
+      const prev = this.t;
       this.t = Math.min(this.tl.duration, this.t + dt * this.speed);
       if (this.t >= this.tl.duration) this.playing = false;
+      this.playSounds(prev, this.t);
     }
+    this.lastSoundT = this.t;
     this.draw();
     this.raf = requestAnimationFrame((t) => this.loop(t));
+  }
+
+  /** Prépare la liste des sons à partir de la timeline. */
+  private buildCues(): void {
+    const cues: { at: number; play: () => void }[] = [];
+    let first = true;
+    for (const b of this.tl.beats) {
+      switch (b.kind) {
+        case 'roundIntro':
+          if (first) { cues.push({ at: 0, play: () => sfx.fanfare() }); first = false; }
+          cues.push({ at: b.at + (b.round === 1 ? 1.1 : 0.2), play: () => sfx.bell(3) });
+          break;
+        case 'punch':
+          cues.push({
+            at: b.at + b.dur * 0.4,
+            play: b.landed ? () => sfx.punch(b.damage, b.clean, b.punch === 'body') : () => { if (this.speed < 4) sfx.whoosh(); },
+          });
+          if (b.landed && b.clean && b.damage >= 10) cues.push({ at: b.at + b.dur * 0.5, play: () => sfx.crowd(0.6) });
+          break;
+        case 'knockdown': {
+          cues.push({ at: b.at + 0.3, play: () => sfx.crowd(1.3) });
+          const per = (b.dur - TIMING.fall - (b.getsUp ? TIMING.getUp : 0)) / b.count;
+          for (let k = 1; k <= b.count; k++) cues.push({ at: b.at + TIMING.fall + (k - 1) * per, play: () => sfx.count(k) });
+          if (!b.getsUp) cues.push({ at: b.at + TIMING.fall + b.count * per, play: () => sfx.ko() });
+          break;
+        }
+        case 'stoppage': if (b.reason !== 'KO') cues.push({ at: b.at, play: () => sfx.ko() }); break;
+        case 'roundEnd': cues.push({ at: b.at, play: () => sfx.bell(1) }); break;
+        case 'decision': cues.push({ at: b.at, play: () => sfx.drumroll() }); break;
+        case 'result': cues.push({ at: b.at + 0.2, play: () => (b.winner ? sfx.victory() : sfx.bell(2)) }); break;
+      }
+    }
+    this.cues = cues.sort((a, b) => a.at - b.at);
+  }
+
+  /** Joue les sons entre deux instants (seulement en lecture continue, pas lors d'un saut). */
+  private playSounds(from: number, to: number): void {
+    if (from !== this.lastSoundT || to - from > 0.5) return;
+    for (const c of this.cues) {
+      if (c.at > to) break;
+      if (c.at > from || (from === 0 && c.at === 0)) c.play();
+    }
   }
 
   private draw(): void {
