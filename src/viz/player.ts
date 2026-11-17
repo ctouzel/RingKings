@@ -4,12 +4,12 @@
  */
 import { formatClock, type SimEvent } from '../sim/engine';
 import type { Corner, FightResult } from '../model/types';
-import { drawFighter, posePoint, type SpriteLook } from './fighterSprite';
+import { drawFighter, posePoint, U, type SpriteLook } from './fighterSprite';
 import { frameAt, type Frame } from './frame';
 import { POSES } from './poses';
 import { isMuted, setMuted, sfx } from './audio';
 import { TIMING } from './timeline';
-import { drawBackground, drawRingFront, drawSpark, GROUND_Y, H, REF_Y, W } from './scene';
+import { drawBackground, drawRingFront, drawShadow, drawSpark, GROUND_Y, H, REF_Y, W } from './scene';
 import { addResult, buildTimeline, type Timeline, type ViewMode } from './timeline';
 
 export interface PlayerCorner {
@@ -227,19 +227,26 @@ export class FightPlayer {
     g.save();
     if (fr.shake) g.translate(Math.round(Math.sin(this.t * 90) * fr.shake), Math.round(Math.cos(this.t * 77) * fr.shake));
     drawBackground(g, this.t, fr.excitement);
-    drawFighter(g, fr.ref.pose, REFEREE, fr.ref.x, REF_Y, fr.ref.facing);
+    // Positions : unités de la logique (256 de large) -> pixels, à l'échelle des sprites, centrées.
+    const X = (x: number) => Math.round(W / 2 + (x - 128) * U);
+    drawShadow(g, X(fr.ref.x), REF_Y, 18);
+    drawFighter(g, fr.ref.pose, REFEREE, X(fr.ref.x), REF_Y, fr.ref.facing);
+    for (const c of ['red', 'blue'] as const) {
+      const lying = fr[c].pose === POSES.down;
+      drawShadow(g, X(fr[c].x) + (lying ? (c === 'red' ? -12 : 12) : 0), GROUND_Y + 1, lying ? 42 : 26);
+    }
     // Le boxeur au sol est dessiné en premier ; sinon le coin rouge d'abord.
     const lying = (c: Corner) => fr[c].pose === POSES.down || fr[c].pose === POSES.kneel;
     const order: Corner[] = lying('blue') && !lying('red') ? ['blue', 'red'] : ['red', 'blue'];
     for (const c of order) {
       const look = this.opts[c].look;
-      drawFighter(g, fr[c].pose, look, Math.round(fr[c].x), GROUND_Y, c === 'red' ? 1 : -1);
+      drawFighter(g, fr[c].pose, look, X(fr[c].x), GROUND_Y, c === 'red' ? 1 : -1);
     }
     if (fr.spark) {
       const c = fr.spark.on;
       const pose = fr[c].pose;
       const pt = posePoint(fr.spark.body ? { x: pose.shoulder.x + 3, y: (pose.shoulder.y + pose.hip.y) / 2 } : { x: pose.head.x + 4, y: pose.head.y - 8 },
-        Math.round(fr[c].x), GROUND_Y, c === 'red' ? 1 : -1, this.opts[c].look.heightCm);
+        X(fr[c].x), GROUND_Y, c === 'red' ? 1 : -1, this.opts[c].look.heightCm);
       drawSpark(g, Math.round(pt.x), Math.round(pt.y), fr.spark.size, fr.spark.clean);
     }
     drawRingFront(g);

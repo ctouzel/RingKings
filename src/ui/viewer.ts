@@ -109,6 +109,6 @@ export function paintSprites(league: League, root: ParentNode): void {
     if (!b) continue;
     const g = cv.getContext('2d')!;
     g.clearRect(0, 0, cv.width, cv.height);
-    drawFighter(g, POSES.guard, { appearance: b.appearance, heightCm: b.heightCm }, Math.floor(cv.width / 2) - 2, cv.height - 3, 1);
+    drawFighter(g, POSES.guard, { appearance: b.appearance, heightCm: b.heightCm }, Math.floor(cv.width / 2) - 8, cv.height - 4, 1);
   }
 }

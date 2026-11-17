@@ -15,7 +15,7 @@ function prospectCard(p: DraftProspect, selected: boolean, full: boolean, league
   const best = [...ATTRIBUTE_KEYS].sort((x, y) => b.attributes[y] - b.attributes[x]).slice(0, 3);
   return `
     <li class="prospect ${selected ? 'picked' : ''} ${full && !selected ? 'dim' : ''}" data-pick="${b.id}">
-      <canvas class="sprite-mini" data-sprite="${b.id}" width="44" height="70"></canvas>
+      <canvas class="sprite-mini" data-sprite="${b.id}" width="96" height="172"></canvas>
       <div class="pr-main">
         <div class="pr-name">${nat.flag} ${esc(displayName(b))}</div>
         <div class="muted small">${ageOn(b.birthDate, league.currentDate)} ans · ${esc(b.hometown)} · ${STYLE_INFO[b.style].label} · ${STANCE_LABEL[b.stance]} · ${b.heightCm} cm</div>
@@ -65,7 +65,7 @@ function awardCard(title: string, a: Award | undefined): string {
   const attrs = a.fightId ? `data-fight="${a.fightId}"` : a.boxerId ? `data-boxer-modal="${a.boxerId}"` : '';
   return `<div class="award" ${attrs}>
     <div class="award-title pixel">${title}</div>
-    ${a.boxerId ? `<canvas class="sprite-mini" data-sprite="${a.boxerId}" width="44" height="70"></canvas>` : ''}
+    ${a.boxerId ? `<canvas class="sprite-mini" data-sprite="${a.boxerId}" width="96" height="172"></canvas>` : ''}
     <div class="award-text">${esc(a.text)}</div>
   </div>`;
 }

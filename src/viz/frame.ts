@@ -25,7 +25,8 @@ export interface Frame {
 }
 
 const CENTER = 128;
-const GAP = { long: 34, inside: 25, clinch: 17 };
+// Écart entre les boxeurs (unités) : à distance le jab touche le visage, au corps à corps le crochet.
+const GAP = { long: 38, inside: 32, clinch: 21 };
 const CORNER_X: Record<Corner, number> = { red: 44, blue: 212 };
 /** Conversion dégâts du moteur -> points de barre de vie. */
 const HP_PER_DAMAGE = 0.09;

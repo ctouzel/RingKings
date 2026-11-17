@@ -36,9 +36,12 @@ npm run build   # vérification des types + build de production
 
 ## Sprites et animation
 
-- **Têtes, coiffures, barbes, gants** : grilles de caractères dans `src/viz/heads.ts`
-  (un caractère = un pixel : `S` peau, `H` cheveux, `E` œil…). Ajouter une coiffure =
-  ajouter une grille à `HAIR_STYLES`.
+- **Rendu des boxeurs** (`src/viz/fighterSprite.ts`) : style 8-bit « NES » à 512×448.
+  Chaque partie du corps est une forme (capsule effilée, ellipse) ombrée
+  automatiquement en 4 tons (lumière en haut à gauche), avec contour sombre et
+  traits intérieurs entre les parties qui se chevauchent. On y règle les épaisseurs
+  des membres, la taille de la tête (`HS`), les gants, les bottines, le short, les
+  coiffures (`switch (ap.hairStyle)`) et l'échelle générale (`U`).
 - **Poses** : points du squelette dans `src/viz/poses.ts` (garde, jab, direct, crochet,
   uppercut, corps, touché, esquive, accrochage, genou à terre, au tapis, victoire, arbitre).
 - **Couleurs** : `src/viz/palette.ts` (peaux, cheveux, ring, foule).

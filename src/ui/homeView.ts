@@ -42,7 +42,7 @@ function todo(league: League): string[] {
   return items;
 }
 
-const mini = (b: Boxer) => `<canvas class="sprite-mini" data-sprite="${b.id}" width="44" height="70"></canvas>`;
+const mini = (b: Boxer) => `<canvas class="sprite-mini" data-sprite="${b.id}" width="96" height="172"></canvas>`;
 
 export function renderHome(app: App): string {
   const l = app.league;

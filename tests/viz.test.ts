@@ -4,7 +4,6 @@ import { divisionOrder, generateLeague } from '../src/gen/generator';
 import { simulateFight } from '../src/sim/engine';
 import { fighterFromBoxer } from '../src/sim/fighter';
 import { frameAt } from '../src/viz/frame';
-import { HAIR_STYLES, FACE, FACIAL_HAIR } from '../src/viz/heads';
 import { POSES } from '../src/viz/poses';
 import { addResult, buildTimeline, TIMING } from '../src/viz/timeline';
 
@@ -91,13 +90,5 @@ describe('frameAt', () => {
     const end = frameAt(tl, tl.duration, names);
     expect(end[loser].pose).toBe(POSES.down);
     expect(end.hp[loser]).toBe(0);
-  });
-});
-
-describe('grilles de pixels', () => {
-  it('toutes les grilles de têtes ont 12 colonnes', () => {
-    for (const g of [FACE, ...HAIR_STYLES, ...FACIAL_HAIR]) for (const row of g) if (row) expect(row).toHaveLength(12);
-    expect(HAIR_STYLES).toHaveLength(6); // appearance.hairStyle va de 0 à 5
-    expect(FACIAL_HAIR).toHaveLength(3);
   });
 });

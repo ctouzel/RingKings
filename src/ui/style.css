@@ -244,7 +244,7 @@ th.sortable:hover, th.sorted { color: var(--text); }
 /* ---- Étape 6 : lecteur 8-bit ---- */
 .no-scroll { overflow: hidden; }
 .card-side { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.sprite-preview { width: 66px; height: 105px; image-rendering: pixelated; background: linear-gradient(#1c1e29 70%, #2c4f8a 70%); border-radius: 4px; }
+.sprite-preview { width: 64px; height: 115px; image-rendering: auto; background: linear-gradient(#1c1e29 70%, #2c4f8a 70%); border-radius: 4px; }
 .viewer-modal { position: fixed; inset: 0; z-index: 50; background: #07060b; overflow-y: auto; display: flex; justify-content: center; padding: 16px; }
 .viewer { width: 100%; max-width: 860px; font-family: 'Press Start 2P', monospace; color: #fff; }
 .vw-title { font-size: 9px; color: var(--accent); text-align: center; margin-bottom: 10px; line-height: 1.6; }
@@ -303,7 +303,7 @@ th.sortable:hover, th.sorted { color: var(--text); }
 .pr-nums b { font-size: 16px; }
 .pr-nums .scout { color: var(--good); }
 .pr-check { color: var(--accent); font-weight: 700; font-size: 18px; text-align: center; }
-.sprite-mini { width: 44px; height: 70px; image-rendering: pixelated; background: linear-gradient(#1c1e29 70%, #2c4f8a 70%); border-radius: 4px; }
+.sprite-mini { width: 44px; height: 79px; image-rendering: auto; background: linear-gradient(#1c1e29 70%, #2c4f8a 70%); border-radius: 4px; }
 .awards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; margin-bottom: 16px; }
 .award { background: var(--panel); border: 2px solid var(--accent); border-radius: 8px; padding: 14px; cursor: pointer; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; }
 .award:hover { background: #2a2614; }

@@ -42,7 +42,7 @@ export function renderEditor(app: App): string {
       <button class="icon-btn modal-x" data-close-editor title="Fermer">✕</button>
       <h3>Apparence de ${esc(fullName(b))}</h3>
       <div class="editor-grid">
-        <canvas id="editor-preview" width="120" height="90" aria-label="Aperçu animé"></canvas>
+        <canvas id="editor-preview" width="260" height="196" aria-label="Aperçu animé"></canvas>
         <div class="editor-controls">
           <div class="ed-row"><span>Peau</span><div>${SKIN.map(([c], i) => swatch('skinTone', i, c, `Teinte ${i + 1}`)).join('')}</div></div>
           <div class="ed-row"><span>Coiffure</span><div>${HAIR_STYLE_LABEL.map((l, i) => choice('hairStyle', i, l)).join('')}</div></div>
@@ -135,12 +135,12 @@ export function syncEditorPreview(app: App, height: number): void {
     // Décor du ring (recadré) puis le boxeur, agrandi.
     g.save();
     g.clearRect(0, 0, cv.width, cv.height);
-    g.translate(-68, -82);
+    g.translate(-126, -146);
     drawBackground(g, now / 1000, 0);
     drawRingFront(g);
     g.restore();
-    drawFighter(g, pose, { appearance: app.editor.draft, heightCm: height }, 46, GROUND_Y - 82, 1);
-    drawFighter(g, POSES.guard, { appearance: { ...app.editor.draft, trunksColor: '#555', glovesColor: '#777' }, heightCm: height }, 80, GROUND_Y - 82, -1);
+    drawFighter(g, pose, { appearance: app.editor.draft, heightCm: height }, 102, GROUND_Y - 146, 1);
+    drawFighter(g, POSES.guard, { appearance: { ...app.editor.draft, trunksColor: '#555', glovesColor: '#777' }, heightCm: height }, 180, GROUND_Y - 146, -1);
     raf = requestAnimationFrame(tick);
   };
   raf = requestAnimationFrame(tick);
